@@ -88,7 +88,7 @@
       <TabViewItem.view>
         <ScrollView>
           <GridLayout columns="*, *"
-                      rows="auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto"
+                      rows="auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto"
                       horizontalAlignment="stretch"
                       class="tab-content">
 
@@ -232,6 +232,9 @@
             <Button row="54" col="0" text="get attributes" tap="{{ getAttributesPerformanceMonitoring }}" class="button button-performance"/>
             <Button row="54" col="1" text="removeAttribute" tap="{{ removeAttributePerformanceMonitoring }}" class="button button-performance"/>
             <Button row="55" colSpan="2" text="increment metric" tap="{{ incrementMetricPerformanceMonitoring }}" class="button button-performance"/>
+            
+            <Label row="56" colSpan="2" text="Getting Hands Dirty" class="subtitle"/>
+            <Button row="57" col="0" text="get dirty" tap="{{ doGetHandsDirty }}" class="button"/>
           </GridLayout>
 
         </ScrollView>

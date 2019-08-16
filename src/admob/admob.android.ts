@@ -1,5 +1,5 @@
 import { firebase } from "../firebase-common";
-import { BannerOptions, InterstitialOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions } from "./admob";
+import { BannerOptions, InterstitialOptions, NativeOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions, DirtyOptions } from "./admob";
 import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks } from "./admob-common";
 import * as appModule from "tns-core-modules/application";
 import { topmost } from "tns-core-modules/ui/frame";
@@ -289,6 +289,58 @@ export function hideBanner(): Promise<any> {
       resolve();
     } catch (ex) {
       console.log("Error in firebase.admob.hideBanner: " + ex);
+      reject(ex);
+    }
+  });
+}
+
+export function handsDirty(arg?: NativeOptions): Promise<any> {
+  return new Promise((resolve, reject) => {
+    try {
+      console.log('Just getting my hands Dirty here :)')
+      // **************** Work space ********************
+
+      const settings = arg;
+      const ad_unit_id = "ca-app-pub-3940256099942544/2247696110"; // default value... should be added into settings
+      // this was pulled from Googles example app code...
+      const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
+      console.log('check0')
+      var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id); 
+      // may need to change format of how I extend these...
+      console.log('check1')
+      // https://developers.google.com/android/reference/com/google/android/gms/ads/formats/UnifiedNativeAd.OnUnifiedNativeAdLoadedListener
+      console.log('check3')
+      var UnifiedNativeAd = new com.google.gms.ads.formats.UnifiedNativeAd;
+      firebase.admob.adLoader = builder.forUnifiedNativeAd(
+        UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
+          onUnifiedNativeAdLoaded: (nativeAdLoader) => {
+            console.log('hello ads!')
+          }
+        })
+      ).withAdListener(
+        new com.google.android.gms.ads.AdListener.extend({
+          onAdFailedToLoad: (errorCode) => {
+            console.log('nativeAdListener')
+            // The previous native ad failed to load. Attempting to load another
+            // if only doing one ad, reject could go here...
+            console.log('unifiedNative ad failed :(');
+            console.log(errorCode);
+            if (!firebase.admob.adLoader.isLoading()) {
+              // insertAdsInMenuItems
+            }
+          }
+        })
+      ).build();
+      console.log('made it out check4')
+      // Load the Native ads.
+      // this builder for REQUEST is different than the one above that is for LOAD
+      // new com.google.android.gms.ads.AdRequest.Builder().build()
+      firebase.admob.adLoader.loadAds(new com.google.android.gms.ads.AdRequest.Builder().build(), 1) // second value for number of ads... this should be good
+
+      // ************************************************
+      resolve('Playing in the dirt!');
+    } catch (ex) {
+      console.log("Error in firebase.admob.handsDirty: " + ex);
       reject(ex);
     }
   });

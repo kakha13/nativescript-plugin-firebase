@@ -107,6 +107,36 @@ export interface InterstitialOptions {
   onAdClosed?: () => void;
 }
 
+export interface NativeOptions {
+  /**
+   * When false (default) you'll get real banners.
+   */
+  testing?: boolean;
+
+  /**
+   * Something like "ca-app-pub-AAAAAAAA/BBBBBBB".
+   */
+  androidNativeId?: string;
+
+  /**
+   * Something like "ca-app-pub-XXXXXX/YYYYYY".
+   */
+  iosNativeId?: string;
+
+  /**
+   * If testing is true, the simulator is allowed to receive test banners.
+   * Android automatically add the connceted device as test device, but iOS does not.
+   * If you also want to test on real devices, add it here like this:
+   *   ["ce97330130c9047ce0d4430d37d713b1", ".."]
+   */
+  iosTestDeviceIds?: string[];
+
+  /**
+   * Invoked when the user closes the interstitial.
+   */
+  onAdClosed?: () => void;
+}
+
 export interface PreloadRewardedVideoAdOptions {
   /**
    * When true you'll use googles testing iosAdPlacementId and androidAdPlacementId.
@@ -179,3 +209,5 @@ export declare function showInterstitial(options?: InterstitialOptions): Promise
 export declare function preloadRewardedVideoAd(options: PreloadRewardedVideoAdOptions): Promise<any>;
 
 export declare function showRewardedVideoAd(options?: ShowRewardedVideoAdOptions): Promise<any>;
+
+export declare function handsDirty(): Promise<any>;
