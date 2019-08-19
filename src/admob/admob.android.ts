@@ -1,5 +1,5 @@
 import { firebase } from "../firebase-common";
-import { BannerOptions, InterstitialOptions, NativeOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions, DirtyOptions } from "./admob";
+import { BannerOptions, InterstitialOptions, NativeOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions } from "./admob";
 import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks } from "./admob-common";
 import * as appModule from "tns-core-modules/application";
 import { topmost } from "tns-core-modules/ui/frame";
