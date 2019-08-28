@@ -1,11 +1,12 @@
 import * as app from 'tns-core-modules/application';
 import * as dialogs from 'tns-core-modules/ui/dialogs';
-import { View, Property, isIOS } from 'tns-core-modules/ui/core/view';
+// import { View, Property, isIOS } from 'tns-core-modules/ui/core/view';
+import { ContentView, Property, isIOS  } from 'tns-core-modules/ui/content-view';
 
 
 export const textProperty = new Property<Common, string>({ name: "text", defaultValue: "", affectsLayout: isIOS });
 
-export class Common extends View {
+export class Common extends ContentView {
   public message: string;
   text: string;
 
