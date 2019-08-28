@@ -1867,36 +1867,4 @@ export class HelloWorldModel extends Observable {
       okButtonText: "Okay"
     });
   }
-
-  public doGetHandsDirty(): void {
-    try {
-      firebaseAdMob.handsDirty({
-        iosInterstitialId: "ca-app-pub-9517346003011652/6938836122",
-        androidInterstitialId: "ca-app-pub-3940256099942544/2247696110",
-        testing: true,
-        // Android automatically adds the connected device as test device with testing:true, iOS does not
-        iosTestDeviceIds: [
-          "45d77bf513dfabc2949ba053da83c0c7b7e87715", // Eddy's iPhone 6s
-          "fee4cf319a242eab4701543e4c16db89c722731f"  // Eddy's iPad Pro
-        ],
-        onAdClosed: () => console.log("Native closed")
-      }).then(results => {
-        console.log(results);
-        alert({
-          title: "handsDirty",
-          message: "successfully ran!",
-          okButtonText: "Okay"
-        })
-
-      }).catch(err => {
-        console.log('handsDirty error: ' + err);
-      })
-    } catch (err) {
-      alert({
-        title: "error",
-        message: err,
-        okButtonText: "Mmkay"
-      });
-    }
-  }
 }

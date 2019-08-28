@@ -21,6 +21,7 @@ src/platforms/android/mlkithelpersrc/**/*.class
 !src/inappmessaging/inappmessaging.d.ts
 !src/storage/storage.d.ts
 !src/admob/admob.d.ts
+!src/admob/*/index.d.ts
 !src/messaging/messaging.d.ts
 !src/mlkit/*/index.d.ts
 !src/mlkit/mlkit-cameraview.d.ts
