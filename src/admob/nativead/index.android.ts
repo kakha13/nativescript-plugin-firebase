@@ -1,7 +1,10 @@
 import { Common, textProperty } from './nativead-common';
 
+declare const com: any;
+
 export class NativeAd extends Common {
-  nativeView: android.widget.Button;  // added for TypeScript intellisense.
+  // nativeView: android.widget.Button;  // added for TypeScript intellisense.
+  // nativeView: com.google.android.gms.ads.formats.UnifiedNativeAdView; // added or TypeScript intellisense
 
 
   constructor() {
@@ -10,7 +13,8 @@ export class NativeAd extends Common {
   }
 
   createNativeView(): Object {
-    const button = new android.widget.Button(this._context);
+    // const button = new android.widget.Button(this._context);
+    const button = new com.google.android.gms.ads.formats.UnifiedNativeAdView(this._context);
 
     return button;
   }
