@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <item type="id" name="ad_view" />
-  <item type="id" name="ad_icon" />
   <item type="id" name="ad_attribution" />
+  <item type="id" name="ad_icon" />
+  <item type="id" name="ad_headline" />
+  <item type="id" name="ad_advertiser" />
+  <item type="id" name="ad_body" />
+  <item type="id" name="ad_price" />
+  <item type="id" name="ad_store" />
+  <item type="id" name="ad_call_to_action" />
 </resources>

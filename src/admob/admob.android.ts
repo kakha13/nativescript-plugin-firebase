@@ -294,29 +294,29 @@ export function hideBanner(): Promise<any> {
   });
 }
 
-export function handsDirty(arg?: NativeOptions): Promise<any> {
+export function loadNativeAds(arg?: NativeOptions): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
       console.log('Just getting my hands Dirty here :)')
-      // **************** Work space ********************
 
       const settings = arg;
       const ad_unit_id = "ca-app-pub-3940256099942544/2247696110"; // default value... should be added into settings
-      // this was pulled from Googles example app code...
+
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
       console.log('check0')
-      var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id); 
+      var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id);
       // may need to change format of how I extend these...
       console.log('check1')
       // https://developers.google.com/android/reference/com/google/android/gms/ads/formats/UnifiedNativeAd.OnUnifiedNativeAdLoadedListener
-      console.log('check3')
-      var UnifiedNativeAd = new com.google.gms.ads.formats.UnifiedNativeAd;
+      var UnifiedNativeAd = new com.google.android.gms.ads.formats.UnifiedNativeAd;
+      UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
+        // onUnifiedNativeAdLoaded: (nativeAdLoader) => {
+        //   console.log('hello ads!')
+        // }
+      });
+      console.log('check3');
       firebase.admob.adLoader = builder.forUnifiedNativeAd(
-        UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
-          onUnifiedNativeAdLoaded: (nativeAdLoader) => {
-            console.log('hello ads!')
-          }
-        })
+        UnifiedNativeAd
       ).withAdListener(
         new com.google.android.gms.ads.AdListener.extend({
           onAdFailedToLoad: (errorCode) => {
@@ -336,11 +336,9 @@ export function handsDirty(arg?: NativeOptions): Promise<any> {
       // this builder for REQUEST is different than the one above that is for LOAD
       // new com.google.android.gms.ads.AdRequest.Builder().build()
       firebase.admob.adLoader.loadAds(new com.google.android.gms.ads.AdRequest.Builder().build(), 1) // second value for number of ads... this should be good
-
-      // ************************************************
-      resolve('Playing in the dirt!');
+      resolve('Resolving loadNativeAds!');
     } catch (ex) {
-      console.log("Error in firebase.admob.handsDirty: " + ex);
+      console.log("Error in firebase.admob.loadNativeAds: " + ex);
       reject(ex);
     }
   });

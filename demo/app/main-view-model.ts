@@ -1867,4 +1867,9 @@ export class HelloWorldModel extends Observable {
       okButtonText: "Okay"
     });
   }
+
+  public doLoadNativeAds(): void {
+    console.log('Loading Native Ad');
+    firebase.admob.loadNativeAds();
+  }
 }

@@ -210,4 +210,4 @@ export declare function preloadRewardedVideoAd(options: PreloadRewardedVideoAdOp
 
 export declare function showRewardedVideoAd(options?: ShowRewardedVideoAdOptions): Promise<any>;
 
-export declare function handsDirty(): Promise<any>;
+export declare function loadNativeAds(): Promise<any>;
