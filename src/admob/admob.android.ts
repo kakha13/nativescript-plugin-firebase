@@ -7,6 +7,16 @@ import { layout } from "tns-core-modules/utils/utils";
 
 declare const com: any;
 
+
+const UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
+const NativeAd = com.google.android.gms.ads.formats.NativeAd;
+const MobileAds = com.google.android.gms.ads.MobileAds;
+const AdRequest = com.google.android.gms.ads.AdRequest;
+const AdLoader = com.google.android.gms.ads.AdLoader;
+const AdListener = com.google.android.gms.ads.AdListener;
+
+var adLoader;
+
 export { AD_SIZE };
 
 export function showBanner(arg: BannerOptions): Promise<any> {
@@ -301,41 +311,87 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
 
       const settings = arg;
       const ad_unit_id = "ca-app-pub-3940256099942544/2247696110"; // default value... should be added into settings
-
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
+      var UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
+
       console.log('check0')
-      var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id);
-      // may need to change format of how I extend these...
-      console.log('check1')
-      // https://developers.google.com/android/reference/com/google/android/gms/ads/formats/UnifiedNativeAd.OnUnifiedNativeAdLoadedListener
-      var UnifiedNativeAd = new com.google.android.gms.ads.formats.UnifiedNativeAd;
-      UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
-        // onUnifiedNativeAdLoaded: (nativeAdLoader) => {
-        //   console.log('hello ads!')
-        // }
+      // *** Try 1 ***
+      // var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id);
+      // firebase.admob.adLoader = builder.forUnifiedNativeAd(
+      //   new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
+      //     onUnifiedNativeAdLoaded: (nativeAdLoader) => {
+      //       console.log('hello ads!')
+      //     }
+      //   })
+      // ).withAdListener(
+      //   new com.google.android.gms.ads.AdListener.extend({
+      //     onAdFailedToLoad: (errorCode) => {
+      //       console.log('nativeAdListener')
+      //       // The previous native ad failed to load. Attempting to load another
+      //       // if only doing one ad, reject could go here...
+      //       console.log('unifiedNative ad failed :(');
+      //       console.log(errorCode);
+      //       if (!firebase.admob.adLoader.isLoading()) {
+      //         // insertAdsInMenuItems
+      //       }
+      //     }
+      //   })
+      // ).build();
+      // *** Try 2 ***
+      // var builder = new AdLoader.Builder(activity, ad_unit_id);
+      // firebase.admob.adLoader = builder.forUnifiedNativeAd(
+      //   UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
+      //     onUnifiedNativeAdLoaded: (nativeAdLoader) => {
+      //       console.log('hello ads!')
+      //     }
+      //   })
+      // ).withAdListener(
+      //   AdListener.extend({
+      //     onAdFailedToLoad: (errorCode) => {
+      //       console.log('nativeAdListener')
+      //       // The previous native ad failed to load. Attempting to load another
+      //       // if only doing one ad, reject could go here...
+      //       console.log('unifiedNative ad failed :(');
+      //       console.log(errorCode);
+      //       if (!firebase.admob.adLoader.isLoading()) {
+      //         // insertAdsInMenuItems
+      //       }
+      //     }
+      //   })
+      // ).build();
+      // firebase.admob.adLoader = builder.build();
+      // *** Try 3 ***
+      // Working code :)
+      const NativeAdListener = com.google.android.gms.ads.AdListener.extend({
+        onAdFailedToLoad: errorCode => {
+          console.log('ad Failed to load!');
+          console.log(errorCode);
+        }
       });
-      console.log('check3');
-      firebase.admob.adLoader = builder.forUnifiedNativeAd(
-        UnifiedNativeAd
-      ).withAdListener(
-        new com.google.android.gms.ads.AdListener.extend({
-          onAdFailedToLoad: (errorCode) => {
-            console.log('nativeAdListener')
-            // The previous native ad failed to load. Attempting to load another
-            // if only doing one ad, reject could go here...
-            console.log('unifiedNative ad failed :(');
-            console.log(errorCode);
-            if (!firebase.admob.adLoader.isLoading()) {
-              // insertAdsInMenuItems
-            }
-          }
-        })
-      ).build();
+      const myUnifiedNativeAd = new MyUnifiedNativeAd();
+
+      var builder = new AdLoader.Builder(activity, ad_unit_id);
+      firebase.admob.adLoader = builder.forUnifiedNativeAd(new MyUnifiedNativeAd()).withAdListener(new NativeAdListener()).build();
+
+
+
       console.log('made it out check4')
       // Load the Native ads.
       // this builder for REQUEST is different than the one above that is for LOAD
       // new com.google.android.gms.ads.AdRequest.Builder().build()
-      firebase.admob.adLoader.loadAds(new com.google.android.gms.ads.AdRequest.Builder().build(), 1) // second value for number of ads... this should be good
+      // todo: use function
+      const myBuilder = new com.google.android.gms.ads.AdRequest.Builder();
+      myBuilder.addTestDevice(com.google.android.gms.ads.AdRequest.DEVICE_ID_EMULATOR);
+      const myActivity = appModule.android.foregroundActivity || appModule.android.startActivity;
+      const ANDROID_ID = android.provider.Settings.Secure.getString(myActivity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+      let deviceId = _md5(ANDROID_ID);
+      if (deviceId !== null) {
+        deviceId = deviceId.toUpperCase();
+        console.log("Treating this deviceId as testdevice: " + deviceId);
+        myBuilder.addTestDevice(deviceId);
+      }
+
+      firebase.admob.adLoader.loadAd(myBuilder.build()) // second value for number of ads... this should be good
       resolve('Resolving loadNativeAds!');
     } catch (ex) {
       console.log("Error in firebase.admob.loadNativeAds: " + ex);
@@ -413,5 +469,20 @@ function _md5(input): string {
   } catch (noSuchAlgorithmException) {
     console.log("error generating md5: " + noSuchAlgorithmException);
     return null;
+  }
+}
+
+@Interfaces([UnifiedNativeAd.OnUnifiedNativeAdLoadedListener])
+class MyUnifiedNativeAd extends UnifiedNativeAd {
+  /**
+   *
+   */
+  constructor() {
+    super();
+    return global.__native(this);
+  }
+  onUnifiedNativeAdLoaded(ad) {
+    console.log('hello ads!');
+    console.log(ad);
   }
 }
