@@ -313,67 +313,19 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       const ad_unit_id = "ca-app-pub-3940256099942544/2247696110"; // default value... should be added into settings
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
       var UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
-
-      console.log('check0')
-      // *** Try 1 ***
-      // var builder = new com.google.android.gms.ads.AdLoader.Builder(activity, ad_unit_id);
-      // firebase.admob.adLoader = builder.forUnifiedNativeAd(
-      //   new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
-      //     onUnifiedNativeAdLoaded: (nativeAdLoader) => {
-      //       console.log('hello ads!')
-      //     }
-      //   })
-      // ).withAdListener(
-      //   new com.google.android.gms.ads.AdListener.extend({
-      //     onAdFailedToLoad: (errorCode) => {
-      //       console.log('nativeAdListener')
-      //       // The previous native ad failed to load. Attempting to load another
-      //       // if only doing one ad, reject could go here...
-      //       console.log('unifiedNative ad failed :(');
-      //       console.log(errorCode);
-      //       if (!firebase.admob.adLoader.isLoading()) {
-      //         // insertAdsInMenuItems
-      //       }
-      //     }
-      //   })
-      // ).build();
-      // *** Try 2 ***
-      // var builder = new AdLoader.Builder(activity, ad_unit_id);
-      // firebase.admob.adLoader = builder.forUnifiedNativeAd(
-      //   UnifiedNativeAd.OnUnifiedNativeAdLoadedListener.extend({
-      //     onUnifiedNativeAdLoaded: (nativeAdLoader) => {
-      //       console.log('hello ads!')
-      //     }
-      //   })
-      // ).withAdListener(
-      //   AdListener.extend({
-      //     onAdFailedToLoad: (errorCode) => {
-      //       console.log('nativeAdListener')
-      //       // The previous native ad failed to load. Attempting to load another
-      //       // if only doing one ad, reject could go here...
-      //       console.log('unifiedNative ad failed :(');
-      //       console.log(errorCode);
-      //       if (!firebase.admob.adLoader.isLoading()) {
-      //         // insertAdsInMenuItems
-      //       }
-      //     }
-      //   })
-      // ).build();
-      // firebase.admob.adLoader = builder.build();
-      // *** Try 3 ***
-      // Working code :)
+      console.log('check2');
       const NativeAdListener = com.google.android.gms.ads.AdListener.extend({
         onAdFailedToLoad: errorCode => {
           console.log('ad Failed to load!');
           console.log(errorCode);
         }
       });
-      const myUnifiedNativeAd = new MyUnifiedNativeAd();
-
+      console.log('check3')
       var builder = new AdLoader.Builder(activity, ad_unit_id);
-      firebase.admob.adLoader = builder.forUnifiedNativeAd(new MyUnifiedNativeAd()).withAdListener(new NativeAdListener()).build();
-
-
+      firebase.admob.adLoader = builder
+        .forUnifiedNativeAd(new MyUnifiedNativeAd())
+        .withAdListener(new NativeAdListener())
+        .build();
 
       console.log('made it out check4')
       // Load the Native ads.
@@ -475,7 +427,8 @@ function _md5(input): string {
 @Interfaces([UnifiedNativeAd.OnUnifiedNativeAdLoadedListener])
 class MyUnifiedNativeAd extends UnifiedNativeAd {
   /**
-   *
+   * Important that all methods be included when overiding interfaces
+   * Ref. https://docs.nativescript.org/core-concepts/android-runtime/binding-generator/extend-class-interface
    */
   constructor() {
     super();
