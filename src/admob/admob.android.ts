@@ -15,7 +15,6 @@ const AdRequest = com.google.android.gms.ads.AdRequest;
 const AdLoader = com.google.android.gms.ads.AdLoader;
 const AdListener = com.google.android.gms.ads.AdListener;
 
-var adLoader;
 
 export { AD_SIZE };
 
@@ -307,6 +306,8 @@ export function hideBanner(): Promise<any> {
 export function loadNativeAds(arg?: NativeOptions): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
+      // args need to contain
+      // ad_unit_id, number of ads up to 5, 
       console.log('Just getting my hands Dirty here :)')
 
       const settings = arg;
@@ -342,8 +343,8 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
         console.log("Treating this deviceId as testdevice: " + deviceId);
         myBuilder.addTestDevice(deviceId);
       }
-
-      firebase.admob.adLoader.loadAd(myBuilder.build()) // second value for number of ads... this should be good
+      //firebase.admob.adLoader.loadAd(myBuilder.build());  // for loading single ad
+      firebase.admob.adLoader.loadAds(myBuilder.build(), 5) // second value for number of ads... up to 5 max
       resolve('Resolving loadNativeAds!');
     } catch (ex) {
       console.log("Error in firebase.admob.loadNativeAds: " + ex);
@@ -430,6 +431,7 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
    * Important that all methods be included when overiding interfaces
    * Ref. https://docs.nativescript.org/core-concepts/android-runtime/binding-generator/extend-class-interface
    */
+  private myLoader;
   constructor() {
     super();
     return global.__native(this);
@@ -437,5 +439,8 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
   onUnifiedNativeAdLoaded(ad) {
     console.log('hello ads!');
     console.log(ad);
+    if (!firebase.admob.adLoader.isLoading()) {
+      console.log('finished loading all ads!!!');
+    }
   }
 }
