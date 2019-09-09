@@ -310,10 +310,14 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       // ad_unit_id, number of ads up to 5, 
       console.log('Just getting my hands Dirty here :)')
 
-      const settings = arg;
-      const ad_unit_id = "ca-app-pub-3940256099942544/2247696110"; // default value... should be added into settings
+      // const settings = arg;
+      // NOTE: Replace temp settings bellow with settings above when pushing to production
+      const settings = {
+        testing: true,
+        ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
+        totalAds: 4
+      }
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
-      var UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
       console.log('check2');
       const NativeAdListener = com.google.android.gms.ads.AdListener.extend({
         onAdFailedToLoad: errorCode => {
@@ -327,7 +331,7 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
         }
       });
       console.log('check3')
-      var builder = new AdLoader.Builder(activity, ad_unit_id);
+      var builder = new AdLoader.Builder(activity, settings.ad_unit_id);
       firebase.admob.adLoader = builder
         .forUnifiedNativeAd(new MyUnifiedNativeAd())
         .withAdListener(new NativeAdListener())
@@ -335,21 +339,14 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
 
       console.log('made it out check4')
       // Load the Native ads.
-      // this builder for REQUEST is different than the one above that is for LOAD
-      // new com.google.android.gms.ads.AdRequest.Builder().build()
-      // todo: use function
-      const myBuilder = new com.google.android.gms.ads.AdRequest.Builder();
-      myBuilder.addTestDevice(com.google.android.gms.ads.AdRequest.DEVICE_ID_EMULATOR);
-      const myActivity = appModule.android.foregroundActivity || appModule.android.startActivity;
-      const ANDROID_ID = android.provider.Settings.Secure.getString(myActivity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-      let deviceId = _md5(ANDROID_ID);
-      if (deviceId !== null) {
-        deviceId = deviceId.toUpperCase();
-        console.log("Treating this deviceId as testdevice: " + deviceId);
-        myBuilder.addTestDevice(deviceId);
+      if(settings.totalAds > 1 && settings.totalAds <= 5) {
+        firebase.admob.adLoader.loadAds(_buildAdRequest(settings), settings.totalAds) // second value for number of ads... up to 5 max
+      } else if(settings.totalAds === 1) {
+        firebase.admob.adLoader.loadAd(_buildAdRequest(settings));  // for loading single ad
+      } else {
+        reject('totalAds is a required setting and can only be a number 1 to 5');
       }
-      //firebase.admob.adLoader.loadAd(myBuilder.build());  // for loading single ad
-      firebase.admob.adLoader.loadAds(myBuilder.build(), 5) // second value for number of ads... up to 5 max
+      
       resolve('Resolving loadNativeAds!');  // In reality ads just started to load here
     } catch (ex) {
       console.log("Error in firebase.admob.loadNativeAds: " + ex);
