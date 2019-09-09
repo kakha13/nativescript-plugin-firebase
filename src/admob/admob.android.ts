@@ -319,6 +319,11 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
         onAdFailedToLoad: errorCode => {
           console.log('ad Failed to load!');
           console.log(errorCode);
+          if (!firebase.admob.adLoader.isLoading()) {
+            console.log('finished loading all ads!!!');
+            // reject for single ad goes in here
+            // if multiple ads check should be done if at least one ad was successful
+          }
         }
       });
       console.log('check3')
@@ -345,7 +350,7 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       }
       //firebase.admob.adLoader.loadAd(myBuilder.build());  // for loading single ad
       firebase.admob.adLoader.loadAds(myBuilder.build(), 5) // second value for number of ads... up to 5 max
-      resolve('Resolving loadNativeAds!');
+      resolve('Resolving loadNativeAds!');  // In reality ads just started to load here
     } catch (ex) {
       console.log("Error in firebase.admob.loadNativeAds: " + ex);
       reject(ex);
@@ -431,7 +436,6 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
    * Important that all methods be included when overiding interfaces
    * Ref. https://docs.nativescript.org/core-concepts/android-runtime/binding-generator/extend-class-interface
    */
-  private myLoader;
   constructor() {
     super();
     return global.__native(this);
@@ -441,6 +445,7 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
     console.log(ad);
     if (!firebase.admob.adLoader.isLoading()) {
       console.log('finished loading all ads!!!');
+      // resolve goes in here
     }
   }
 }
