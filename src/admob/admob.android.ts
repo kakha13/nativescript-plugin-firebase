@@ -310,13 +310,23 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       // ad_unit_id, number of ads up to 5, 
       console.log('Just getting my hands Dirty here :)')
 
+      // need these to support showing a banner more than once
+      this.resolve = resolve;
+      this.reject = reject;
+
       // const settings = arg;
-      // NOTE: Replace temp settings bellow with settings above when pushing to production
+      // TODO: Replace temp settings bellow with settings above when pushing to production
       const settings = {
         testing: true,
         ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-        totalAds: 4
+        totalAds: 3
       }
+      // Check to see if array of nativeAds exists
+      if (firebase.admob.nativeAds === undefined) {
+        // could clear old ads here...maybe?
+        firebase.admob.nativeAds = [];
+      }
+      // TODO: should sanitize/check if all referenced values are passed in... referencing something not defined will through errors
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
       console.log('check2');
       const NativeAdListener = com.google.android.gms.ads.AdListener.extend({
@@ -325,15 +335,23 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
           console.log(errorCode);
           if (!firebase.admob.adLoader.isLoading()) {
             console.log('finished loading all ads!!!');
+            if(firebase.admob.nativeAds.length > 0) {
+              this.resolve(firebase.admob.nativeAds)
+            } else {
+              this.reject('failed to load ads');
+            }
             // reject for single ad goes in here
             // if multiple ads check should be done if at least one ad was successful
           }
+        },
+        onAdClicked: args => {
+          console.log("Click event Logged!!!");
         }
       });
       console.log('check3')
       var builder = new AdLoader.Builder(activity, settings.ad_unit_id);
       firebase.admob.adLoader = builder
-        .forUnifiedNativeAd(new MyUnifiedNativeAd())
+        .forUnifiedNativeAd(new MyUnifiedNativeAd(this.resolve))
         .withAdListener(new NativeAdListener())
         .build();
 
@@ -347,7 +365,7 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
         reject('totalAds is a required setting and can only be a number 1 to 5');
       }
       
-      resolve('Resolving loadNativeAds!');  // In reality ads just started to load here
+      // resolve('Resolving loadNativeAds!');  // In reality ads just started to load here
     } catch (ex) {
       console.log("Error in firebase.admob.loadNativeAds: " + ex);
       reject(ex);
@@ -433,16 +451,21 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
    * Important that all methods be included when overiding interfaces
    * Ref. https://docs.nativescript.org/core-concepts/android-runtime/binding-generator/extend-class-interface
    */
-  constructor() {
+  private LoadNativeAdsResolve: any;
+  constructor(loadNativeAdsResolve: any) {
     super();
+    this.LoadNativeAdsResolve = loadNativeAdsResolve;
     return global.__native(this);
   }
   onUnifiedNativeAdLoaded(ad) {
     console.log('hello ads!');
     console.log(ad);
+    // console.log(ad.getHeadline().toString());
+    firebase.admob.nativeAds.push(ad);
     if (!firebase.admob.adLoader.isLoading()) {
       console.log('finished loading all ads!!!');
-      // resolve goes in here
+      console.log(firebase.admob.nativeAds.length);
+      this.LoadNativeAdsResolve(firebase.admob.nativeAds);
     }
   }
 }

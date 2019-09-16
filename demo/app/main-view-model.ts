@@ -32,6 +32,10 @@ export class HelloWorldModel extends Observable {
   private onAuthStateChangedHandlerSet = false;
   private firebaseTrace: FirebaseTrace;
 
+  navigatedTo(): void {
+    console.log('It is working!');
+  }
+
   /***********************************************
    * Web API usage examples
    ***********************************************/
@@ -1870,6 +1874,24 @@ export class HelloWorldModel extends Observable {
 
   public doLoadNativeAds(): void {
     console.log('Loading Native Ad');
-    firebase.admob.loadNativeAds();
+    firebase.admob.loadNativeAds().then(result => {
+      console.log('Total number of ads returned: ' + result.length);
+      for (var i = 0; i < result.length; i++) {
+        console.log(i);
+        console.log(result[i].getHeadline());
+      }
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+
+  public doDestroyNativeAds(): void {
+    console.log(firebase.admob.nativeAds);
+    if(firebase.admob.nativeAds !== undefined && firebase.admob.loadNativeAds.length > 0) {
+      for (let i = 0; i < firebase.admob.nativeAds.length; i++) {
+        firebase.admob.nativeAds[i].destroy();
+      }
+      firebase.admob.nativeAds = [];
+    }
   }
 }

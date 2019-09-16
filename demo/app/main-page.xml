@@ -7,25 +7,25 @@
           <StackLayout class="tab-content">
             <Image margin="10" src="~/images/telerik-logo.png"/>
             <Label text="Firebase plugin demo" class="title"/>
-            <Button row="57" col="0" text="load Native Ads" tap="{{ doLoadNativeAds }}" class="button"/>
-            <ui:NativeAd
+            <Button text="Destory Native Ads" tap="{{ doDestroyNativeAds }}" class="button"/>
+            <Button row="57" col="0" text="load Native Ads" tap="loadNativeAds" class="button"/>
+            <!-- <ui:NativeAd
               id="ad_view"
               width="100%"
             >
-              <StackLayout>
-                <Label text="my ad" />
+              <StackLayout borderColor="gray" borderWidth="2" padding="5">
                 <Label text="ad" id="ad_attribution" />
-                <Image id="ad_icon" />
-                <Label id="ad_headline" />
-                <Label id="ad_advertiser" />
-                <!-- Add RatingBar -->
-                <Label id="ad_body" />
-                <!-- Add MediaView from com.google.android.gms.ads.formats.MediaView -->
+                <Image id="ad_attribution_icon" stretch="none" />
+                <Image id="ad_icon" stretch="none" />
+                <Label ref="ad_headline" id="ad_headline" color="black"/>
+                <Label id="ad_advertiser" color="red"/>
+                <Label id="ad_body" color="blue"/>
                 <Label id="ad_price" />
                 <Label id="ad_store" />
-                <Button id="ad_call_to_action" />
+                <Button id="ad_call_to_action" color="white" />
               </StackLayout>
-            </ui:NativeAd>
+            </ui:NativeAd> -->
+            <ui:NativeAdViewLayout width="100%" />
           </StackLayout>
         </ScrollView>
       </TabViewItem.view>
