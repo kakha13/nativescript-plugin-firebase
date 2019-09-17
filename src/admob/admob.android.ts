@@ -318,7 +318,7 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       const settings = {
         testing: true,
         ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-        totalAds: 3
+        totalAds: 1
       }
       // TODO: will eventually need to come up with a solution for storing ads in different adunits
       // TODO: figure out if we want to store all ads or just leave that up to the user
@@ -465,7 +465,7 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
     console.log(ad);
     firebase.admob.nativeAds.push(ad);
     if (!firebase.admob.adLoader.isLoading()) {
-      console.log('total ads loaded: ' + firebase.admob.nativeAds.length);
+      // console.log('total ads loaded: ' + firebase.admob.nativeAds.length);
       this.LoadNativeAdsResolve(firebase.admob.nativeAds);  // resolving promise for loadNativeAds()
     }
   }

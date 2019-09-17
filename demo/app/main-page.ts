@@ -57,8 +57,6 @@ export function loadNativeAds(): void {
     // page.getViewById("ad_store").text = result[0].getStore();
     // page.getViewById("ad_call_to_action").text = result[0].getCallToAction();
     console.log(result[0].getIcon().getUri());
-    console.log(page.getViewById("ad_view"));
-    populateNativeAdView(result[0], page.getViewById("ad_view"));
 
     for (var i = 0; i < result.length; i++) {
       console.log(i);

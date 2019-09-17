@@ -25,7 +25,9 @@
                 <Button id="ad_call_to_action" color="white" />
               </StackLayout>
             </ui:NativeAd> -->
-            <ui:NativeAdViewLayout width="100%" />
+            <ui:NativeAdViewLayout width="100%" margin="20" />
+            <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
+            <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
           </StackLayout>
         </ScrollView>
       </TabViewItem.view>
