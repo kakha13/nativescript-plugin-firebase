@@ -118,30 +118,35 @@ export class NativeAdViewLayout extends Common {
         this.adView.getIconView().setVisibility(android.view.View.INVISIBLE);
       } else {
         this.adView.getIconView().setImageDrawable(result[0].getIcon().getDrawable());
+        this.adView.getIconView().setVisibility(android.view.View.VISIBLE);
       }
       if (result[0].getPrice() === null) {
         console.log('no Price');
         this.adView.getPriceView().setVisibility(android.view.View.INVISIBLE);
       } else {
         this.adView.getPriceView().setText(result[0].getPrice());
+        this.adView.getPriceView().setVisibility(android.view.View.VISIBLE);
       }
       if (result[0].getStore() === null) {
         console.log('no Store');
         this.adView.getStoreView().setVisibility(android.view.View.INVISIBLE);
       } else {
         this.adView.getStoreView().setText(result[0].getStore());
+        this.adView.getStoreView().setVisibility(android.view.View.VISIBLE);
       }
       if (result[0].getStarRating() === null) {
         console.log('no Star Rating');
         this.adView.getStarRatingView().setVisibility(android.view.View.INVISIBLE);
       } else {
         this.adView.getStarRatingView().setRating(result[0].getStarRating().floatValue());
+        this.adView.getStarRatingView().setVisibility(android.view.View.VISIBLE);
       }
       if (result[0].getAdvertiser() === null) {
         console.log('no Advertiser');
         this.adView.getAdvertiserView().setVisibility(android.view.View.INVISIBLE);
       } else {
         this.adView.getAdvertiserView().setText(result[0].getAdvertiser());
+        this.adView.getAdvertiserView().setVisibility(android.view.View.VISIBLE);
       }
   
       // NOTE: if ad isn't set here click events won't work as they are handled
