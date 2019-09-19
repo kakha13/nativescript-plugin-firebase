@@ -3,12 +3,11 @@
 
     <TabViewItem title="Native Ads">
       <TabViewItem.view>
-        <ScrollView>
           <StackLayout class="tab-content">
-            <Image margin="10" src="~/images/telerik-logo.png"/>
-            <Label text="Firebase plugin demo" class="title"/>
-            <Button text="Destory Native Ads" tap="{{ doDestroyNativeAds }}" class="button"/>
-            <Button row="57" col="0" text="load Native Ads" tap="loadNativeAds" class="button"/>
+            <!-- <Image margin="10" src="~/images/telerik-logo.png"/>
+            <Label text="Firebase plugin demo" class="title"/> -->
+            <!-- <Button text="Destory Native Ads" tap="{{ doDestroyNativeAds }}" class="button"/> -->
+            <Button text="load Native Ads" tap="{{ doLoadNativeAds }}" class="button"/>
             <!-- <ui:NativeAd
               id="ad_view"
               width="100%"
@@ -25,11 +24,24 @@
                 <Button id="ad_call_to_action" color="white" />
               </StackLayout>
             </ui:NativeAd> -->
-            <ui:NativeAdViewLayout width="100%" margin="20" />
             <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
             <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
+            <ListView items="{{ items }}" height="100%" loadMoreItems="{{ doLoadNativeAds }}" itemTemplateSelector="{{ doSelectItemTemplate }}">
+            <ListView.itemTemplates >
+              <template key="ad">
+                <StackLayout>
+                  <ui:NativeAdViewLayout ad="{{ $value }}" width="100%" />
+                </StackLayout>
+              </template>
+              <template key="card">
+                <StackLayout>
+                  <Label text="{{ title }}" />
+                  <Label text="look at all of theese ads!" />
+                </StackLayout>
+              </template>
+            </ListView.itemTemplates>
+          </ListView>
           </StackLayout>
-        </ScrollView>
       </TabViewItem.view>
     </TabViewItem>
 

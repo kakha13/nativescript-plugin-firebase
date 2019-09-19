@@ -1,4 +1,4 @@
-import { Common, textProperty, fileProperty } from './nativead-common';
+import { Common, textProperty, fileProperty, adProperty } from './nativead-common';
 import * as application from 'tns-core-modules/application';
 import { loadNativeAds } from "../admob.android";
 
@@ -66,6 +66,14 @@ export class NativeAdViewLayout extends Common {
   initNativeView() {
     // TODO: Come up with better way to hide ad before it is loaded
     this.registerView();
+
+    // TODO: Loading and populating should be done outside of UI element
+    // loadNativeAds().then(result => {
+    //   // TODO: figure out what to do for loading multiple ads... curently just using first
+    //   this.populateView(result[0]);
+    // }).catch(error => {
+    //   console.log(error);
+    // })
   }
 
   destroyNativeView() {
@@ -75,11 +83,15 @@ export class NativeAdViewLayout extends Common {
   registerView() {
     console.log('registering views');
 
-    // NOTE: ad_view can be inside another layout for the template which is why we can't just use this.layout for adview
+    // ad_view can be inside another layout for the template which is why we can't just use this.layout for adview
     this.adView = this.layout.findViewById(getId('ad_view'));
     console.log(this.adView);
-    // Register the view used for each individual asset.
-    console.log(this.adView.findViewById(getId('ad_headline')));
+
+    // Set the media view. Media content will be automatically populated in the media view once
+    // this.adView.setNativeAd() is called.
+    this.adView.setMediaView(this.adView.findViewById(getId('ad_media')));
+    // Set other ad assets.
+    this.adView.setVisibility(android.view.View.INVISIBLE);
     this.adView.setHeadlineView(this.adView.findViewById(getId('ad_headline')));
     this.adView.setBodyView(this.adView.findViewById(getId('ad_body')));
     this.adView.setCallToActionView(this.adView.findViewById(getId('ad_call_to_action')));
@@ -88,82 +100,79 @@ export class NativeAdViewLayout extends Common {
     this.adView.setStarRatingView(this.adView.findViewById(getId('ad_stars')));
     this.adView.setStoreView(this.adView.findViewById(getId('ad_store')));
     this.adView.setAdvertiserView(this.adView.findViewById(getId('ad_advertiser')));
+  }
 
-    // NOTE: not sure why but reigistering MediaView here is sufficiant for displaying this resource...
-    //       you do not need to set this asset like the rest... also video is curently not tested
+  public populateView(nativeAd) {
+    // TODO: as of right now user can pass in any object through ad property... need to sanitize
 
-    // The MediaView will display a video asset if one is present in the ad, and the
-    // first image asset otherwise.
-    this.adView.setMediaView(this.adView.findViewById(getId('ad_media')));
+    // assets guaranteed to be in every UnifiedNativeAd.
+    this.adView.getHeadlineView().setText(nativeAd.getHeadline());
+    this.adView.getBodyView().setText(nativeAd.getBody());
+    this.adView.getCallToActionView().setText(nativeAd.getCallToAction())
 
-    console.log('loading ads');
+    // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
+    // check before trying to display them.
 
-    // TODO: split this section out
-    //Loading ads
-    loadNativeAds().then(result => {
-      // TODO: figure out what to do for loading multiple ads... curently just using first
-      console.log('Total number of ads returned: ' + result.length);
-      console.log(result[0]);
+    if (nativeAd.getIcon() === null) {
+      // console.log('no Icon');
+      this.adView.getIconView().setVisibility(android.view.View.INVISIBLE);
+    } else {
+      this.adView.getIconView().setImageDrawable(nativeAd.getIcon().getDrawable());
+      this.adView.getIconView().setVisibility(android.view.View.VISIBLE);
+    }
+    if (nativeAd.getPrice() === null) {
+      // console.log('no Price');
+      this.adView.getPriceView().setVisibility(android.view.View.INVISIBLE);
+    } else {
+      this.adView.getPriceView().setText(nativeAd.getPrice());
+      this.adView.getPriceView().setVisibility(android.view.View.VISIBLE);
+    }
+    if (nativeAd.getStore() === null) {
+      // console.log('no Store');
+      this.adView.getStoreView().setVisibility(android.view.View.INVISIBLE);
+    } else {
+      this.adView.getStoreView().setText(nativeAd.getStore());
+      this.adView.getStoreView().setVisibility(android.view.View.VISIBLE);
+    }
+    if (nativeAd.getStarRating() === null) {
+      // console.log('no Star Rating');
+      this.adView.getStarRatingView().setVisibility(android.view.View.INVISIBLE);
+    } else {
+      this.adView.getStarRatingView().setRating(nativeAd.getStarRating().floatValue());
+      this.adView.getStarRatingView().setVisibility(android.view.View.VISIBLE);
+    }
+    if (nativeAd.getAdvertiser() === null) {
+      // console.log('no Advertiser');
+      this.adView.getAdvertiserView().setVisibility(android.view.View.INVISIBLE);
+    } else {
+      this.adView.getAdvertiserView().setText(nativeAd.getAdvertiser());
+      this.adView.getAdvertiserView().setVisibility(android.view.View.VISIBLE);
+    }
+    // TODO: should probably change this in favor of user handling
+    this.adView.setVisibility(android.view.View.VISIBLE);
 
-      // Some assets are guaranteed to be in every UnifiedNativeAd.
-      this.adView.getHeadlineView().setText(result[0].getHeadline());
-      this.adView.getBodyView().setText(result[0].getBody());
-      this.adView.getCallToActionView().setText(result[0].getCallToAction())
+    // This method tells the Google Mobile Ads SDK that you have finished populating your
+    // native ad view with this native ad. The SDK will populate the adView's MediaView
+    // with the media content from this native ad.
+    this.adView.setNativeAd(nativeAd);
 
-      // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
-      // check before trying to display them.
+    // Get the video controller for the ad. One will always be provided, even if the ad doesn't
+    // have a video asset.
+    var vc = nativeAd.getVideoController();
 
-      if (result[0].getIcon() === null) {
-        console.log('no Icon');
-        this.adView.getIconView().setVisibility(android.view.View.INVISIBLE);
-      } else {
-        this.adView.getIconView().setImageDrawable(result[0].getIcon().getDrawable());
-        this.adView.getIconView().setVisibility(android.view.View.VISIBLE);
-      }
-      if (result[0].getPrice() === null) {
-        console.log('no Price');
-        this.adView.getPriceView().setVisibility(android.view.View.INVISIBLE);
-      } else {
-        this.adView.getPriceView().setText(result[0].getPrice());
-        this.adView.getPriceView().setVisibility(android.view.View.VISIBLE);
-      }
-      if (result[0].getStore() === null) {
-        console.log('no Store');
-        this.adView.getStoreView().setVisibility(android.view.View.INVISIBLE);
-      } else {
-        this.adView.getStoreView().setText(result[0].getStore());
-        this.adView.getStoreView().setVisibility(android.view.View.VISIBLE);
-      }
-      if (result[0].getStarRating() === null) {
-        console.log('no Star Rating');
-        this.adView.getStarRatingView().setVisibility(android.view.View.INVISIBLE);
-      } else {
-        this.adView.getStarRatingView().setRating(result[0].getStarRating().floatValue());
-        this.adView.getStarRatingView().setVisibility(android.view.View.VISIBLE);
-      }
-      if (result[0].getAdvertiser() === null) {
-        console.log('no Advertiser');
-        this.adView.getAdvertiserView().setVisibility(android.view.View.INVISIBLE);
-      } else {
-        this.adView.getAdvertiserView().setText(result[0].getAdvertiser());
-        this.adView.getAdvertiserView().setVisibility(android.view.View.VISIBLE);
-      }
-  
-      // NOTE: if ad isn't set here click events won't work as they are handled
-      //       by the sdk when
-      this.adView.setNativeAd(result[0]);
-
-      console.log('*** List of ads loaded ***')
-      for (var i = 0; i < result.length; i++) {
-        console.log(i + ': ' + result[i].getHeadline());
-      }
-    }).catch(error => {
-      console.log(error);
-    })
+    if (vc.hasVideoContent()) {
+      console.log('Video status: has video content');
+    } else {
+      console.log('Video status: Ad does not contain a video asset.');
+    }
   }
   
   [fileProperty.setNative](value: string) {
     this.nativeView.setText(value)
+  }
+
+  [adProperty.setNative](value: any) {
+    this.populateView(value);
   }
 
   // TODO: remove for production... just an example

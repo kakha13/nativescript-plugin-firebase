@@ -76,13 +76,3 @@ function destroyNativeAds(): void {
     firebase.admob.nativeAds = [];
   }
 }
-
-function populateNativeAdView(nativeAd, adView) {
-  console.log('populateNativeAdView');
-  adView.myFunction();
-  // (<TextView>adView.getHeadlineView()).setText(nativeAd.getHeadline());
-  // adView.getBodyView().setText(nativeAd.getBody());
-  // adView.getCallToAction().setText(nativeAd.getCallToAction());
-
-  // adView.setNativeAd(nativeAd);
-}

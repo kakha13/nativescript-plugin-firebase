@@ -6,6 +6,7 @@ import { ContentView, Property, isIOS  } from 'tns-core-modules/ui/content-view'
 
 export const textProperty = new Property<Common, string>({ name: "text", defaultValue: "", affectsLayout: isIOS });
 export const fileProperty = new Property<Common, string>({ name: "file", defaultValue: "", affectsLayout: isIOS });
+export const adProperty = new Property<Common, any>({ name: "ad", defaultValue: {}, affectsLayout: isIOS});
 
 export class Common extends ContentView {
   public message: string;
@@ -13,7 +14,7 @@ export class Common extends ContentView {
 
   constructor() {
     super();
-    this.message = Utils.SUCCESS_MSG();
+    // this.message = Utils.SUCCESS_MSG();
   }
 
   public greet() {
@@ -37,3 +38,5 @@ export class Utils {
 textProperty.register(Common);
 // Defines 'file' property on NativeAdViewLayout class.
 fileProperty.register(Common);
+
+adProperty.register(Common);

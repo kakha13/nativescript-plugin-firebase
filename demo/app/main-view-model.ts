@@ -32,6 +32,91 @@ export class HelloWorldModel extends Observable {
   private onAuthStateChangedHandlerSet = false;
   private firebaseTrace: FirebaseTrace;
 
+  public items = [];
+  public newsItems = [
+    {
+      title: 'title1', 
+      body: 'body1'
+    },
+    {
+      title: 'title2',
+      body: 'body2'
+    },
+    {
+      title: 'title3', 
+      body: 'body3'
+    },
+    {
+      title: 'title4',
+      body: 'body4'
+    },
+    {
+      title: 'title5', 
+      body: 'body5'
+    },
+    {
+      title: 'title6',
+      body: 'body6'
+    },
+    {
+      title: 'title7', 
+      body: 'body7'
+    },
+    {
+      title: 'title8',
+      body: 'body8'
+    },
+    {
+      title: 'title9', 
+      body: 'body9'
+    },
+    {
+      title: 'title10',
+      body: 'body10'
+    },
+    {
+      title: 'title11', 
+      body: 'body11'
+    },
+    {
+      title: 'title12',
+      body: 'body12'
+    },
+    {
+      title: 'title13', 
+      body: 'body13'
+    },
+    {
+      title: 'title14',
+      body: 'body14'
+    },
+    {
+      title: 'title15', 
+      body: 'body15'
+    },
+    {
+      title: 'title16',
+      body: 'body16'
+    },
+    {
+      title: 'title17', 
+      body: 'body17'
+    },
+    {
+      title: 'title18',
+      body: 'body18'
+    },
+    {
+      title: 'title19', 
+      body: 'body19'
+    },
+    {
+      title: 'title20',
+      body: 'body20'
+    }
+  ];
+
+
   navigatedTo(): void {
     console.log('It is working!');
   }
@@ -1875,14 +1960,42 @@ export class HelloWorldModel extends Observable {
   public doLoadNativeAds(): void {
     console.log('Loading Native Ad');
     firebase.admob.loadNativeAds().then(result => {
-      console.log('Total number of ads returned: ' + result.length);
-      for (var i = 0; i < result.length; i++) {
-        console.log(i);
-        console.log(result[i].getHeadline());
+      console.log(result.length);
+      // exit if no results
+      if (result.length <= 0) {
+        return
+      }
+
+      // inserting  5 potential ads into 10 news items
+      let offset = (this.newsItems.length / result.length) + 1;
+      let index = 0;
+
+      // let copyNewsItems = this.newsItems;
+      let copyNewsItems = JSON.parse(JSON.stringify(this.newsItems))
+
+      result.forEach(ad => {
+        copyNewsItems.splice(index, 0, ad);
+        index = index + offset;
+      });
+
+      console.log(copyNewsItems);
+      // let tempArray: any;
+      // for (var i = 0; i < (result.length + this.newsItems.length); i++) {
+
+      // }
+      if (this.items.length > 0) {
+        this.set("items", this.items.concat(copyNewsItems));
+      } else {
+        // first time
+        this.set("items", copyNewsItems);
       }
     }).catch(error => {
       console.log(error);
     })
+  }
+
+  public doSelectItemTemplate(item, index, items) {
+    return item.title !== undefined ? "card" : "ad";
   }
 
   public doDestroyNativeAds(): void {
