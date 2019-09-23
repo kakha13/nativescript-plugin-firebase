@@ -1,6 +1,5 @@
-import { Common, textProperty, fileProperty, adProperty } from './nativead-common';
+import { Common, fileProperty, adProperty } from './nativead-common';
 import * as application from 'tns-core-modules/application';
-import { loadNativeAds } from "../admob.android";
 
 declare const com: any;
 const UnifiedNativeAdView = com.google.android.gms.ads.formats.UnifiedNativeAdView;
@@ -15,42 +14,13 @@ function getId(id: string) {
   return context.getResources().getIdentifier(id, 'id', context.getPackageName());
 }
 
-// TODO: register and populate view so user isn't dependent on res/layout layout
-export class NativeAd extends Common {
-  // nativeView: android.widget.Button;  // added for TypeScript intellisense.
-  // nativeView: com.google.android.gms.ads.formats.UnifiedNativeAdView; // added or TypeScript intellisense
-
-  constructor() {
-    super();
-    console.log('nativeAdView')
-  }
-
-  createNativeView(): Object {
-    // const button = new android.widget.Button(this._context);
-    console.log('creating native view!');
-    const nativeAdView = new UnifiedNativeAdView(this._context);
-    return nativeAdView;
-  }
-  initNativeView() {
-
-  }
-
-  destroyNativeView() {
-
-  }
-
-  // transfer JS text value to nativeView.
-  [textProperty.setNative](value: string) {
-    this.nativeView.setText(value);
-  }
-}
-
 // Uses file in res/layout to display ad
 export class NativeAdViewLayout extends Common {
   // nativeView: android.widget.Button;  // added for TypeScript intellisense.
   // nativeView: com.google.android.gms.ads.formats.UnifiedNativeAdView; // added or TypeScript intellisense
   adView: any;
   layout: any;
+  nativeAd: any;  // Storing nativeAd here so we can destroy it later... on second thought might not do this as view gets recycled
 
   constructor() {
     super();
@@ -58,6 +28,7 @@ export class NativeAdViewLayout extends Common {
   }
 
   createNativeView(): Object {
+    // IMPORTANT: this UnifiedNativeAdView gets recycled in listviews... once the view leaves the page it will be reused again by another nativeAd
     // const button = new android.widget.Button(this._context);
     console.log('creating native view!');
     this.layout = android.view.LayoutInflater.from(this._context).inflate(getLayout('ad_unified'), null, false);
@@ -103,7 +74,25 @@ export class NativeAdViewLayout extends Common {
   }
 
   public populateView(nativeAd) {
+    // This gets called everytime a nativeAd is passed back into view as the unifiedNativeAdView gets recycled
+    // Since this is the case registering the adview may need to be resset if different layouts were used
+
     // TODO: as of right now user can pass in any object through ad property... need to sanitize
+
+
+    // TODO: remove for production... just demonstrating how listview is recycling this View
+    if (this.nativeAd !== undefined) {
+      console.log('*** Refreshing adView ***');
+      console.log('old: ' + this.nativeAd);
+      console.log('new: ' + nativeAd);
+      
+      // was going to destroy ad here but this view is recycled for multiple nativeAds
+      // this.nativeAd.destory();
+    } else {
+      console.log('*** Loading adView for first time ***');
+      console.log(nativeAd);
+    }
+    this.nativeAd = nativeAd;
 
     // assets guaranteed to be in every UnifiedNativeAd.
     this.adView.getHeadlineView().setText(nativeAd.getHeadline());
@@ -174,10 +163,29 @@ export class NativeAdViewLayout extends Common {
   [adProperty.setNative](value: any) {
     this.populateView(value);
   }
+}
 
-  // TODO: remove for production... just an example
-  // transfer JS text value to nativeView.
-  [textProperty.setNative](value: string) {
-    this.nativeView.setText(value);
+// TODO: register and populate view so user isn't dependent on res/layout layout
+export class NativeAd extends Common {
+  // nativeView: android.widget.Button;  // added for TypeScript intellisense.
+  // nativeView: com.google.android.gms.ads.formats.UnifiedNativeAdView; // added or TypeScript intellisense
+
+  constructor() {
+    super();
+    console.log('nativeAdView')
+  }
+
+  createNativeView(): Object {
+    // const button = new android.widget.Button(this._context);
+    console.log('creating native view!');
+    const nativeAdView = new UnifiedNativeAdView(this._context);
+    return nativeAdView;
+  }
+  initNativeView() {
+
+  }
+
+  destroyNativeView() {
+
   }
 }

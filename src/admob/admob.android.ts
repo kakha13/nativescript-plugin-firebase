@@ -314,12 +314,6 @@ export function loadNativeAds(arg: NativeOptions): Promise<any> {
       this.reject = reject;
 
       const settings = arg;
-      // TODO: Replace temp settings bellow with settings above when pushing to production
-      // const settings = {
-      //   testing: true,
-      //   ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-      //   totalAds: 5
-      // }
       // TODO: will eventually need to come up with a solution for storing ads in different adunits
       // TODO: figure out if we want to store all ads or just leave that up to the user
       // Creating initial array for ads
