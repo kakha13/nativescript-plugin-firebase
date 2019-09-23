@@ -303,7 +303,7 @@ export function hideBanner(): Promise<any> {
   });
 }
 
-export function loadNativeAds(arg?: NativeOptions): Promise<any> {
+export function loadNativeAds(arg: NativeOptions): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
       // args need to contain
@@ -313,18 +313,18 @@ export function loadNativeAds(arg?: NativeOptions): Promise<any> {
       this.resolve = resolve;
       this.reject = reject;
 
-      // const settings = arg;
+      const settings = arg;
       // TODO: Replace temp settings bellow with settings above when pushing to production
-      const settings = {
-        testing: true,
-        ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-        totalAds: 5
-      }
+      // const settings = {
+      //   testing: true,
+      //   ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
+      //   totalAds: 5
+      // }
       // TODO: will eventually need to come up with a solution for storing ads in different adunits
       // TODO: figure out if we want to store all ads or just leave that up to the user
       // Creating initial array for ads
       // if (firebase.admob.nativeAds === undefined) {
-      firebase.admob.nativeAds = [];  // letting user store ads for now
+      firebase.admob.nativeAds = [];  // letting user handle destroying nativeAds
       // }
       // TODO: should sanitize/check if all referenced values are passed in... referencing something not defined will through errors
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
@@ -465,7 +465,6 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
     console.log(ad);
     firebase.admob.nativeAds.push(ad); // could potentialy pop
     if (!firebase.admob.adLoader.isLoading()) {
-      // console.log('total ads loaded: ' + firebase.admob.nativeAds.length);
       this.LoadNativeAdsResolve(firebase.admob.nativeAds);  // resolving promise for loadNativeAds()
     }
   }

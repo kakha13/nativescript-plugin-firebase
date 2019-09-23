@@ -1959,7 +1959,12 @@ export class HelloWorldModel extends Observable {
 
   public doLoadNativeAds(): void {
     console.log('Loading Native Ad');
-    firebase.admob.loadNativeAds().then(result => {
+    const settings = {
+      testing: true,
+      ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
+      totalAds: 5
+    }
+    firebase.admob.loadNativeAds(settings).then(result => {
       console.log(result.length);
       // exit if no results
       if (result.length <= 0) {

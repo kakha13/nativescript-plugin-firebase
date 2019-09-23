@@ -119,6 +119,16 @@ export interface NativeOptions {
   androidNativeId?: string;
 
   /**
+   * Something like "ca-app-pub-3940256099942544/2247696110"
+   */
+  ad_unit_id: string;
+
+  /**
+   * number from 1-5
+   */
+  totalAds: number;
+
+  /**
    * Something like "ca-app-pub-XXXXXX/YYYYYY".
    */
   iosNativeId?: string;
@@ -210,4 +220,4 @@ export declare function preloadRewardedVideoAd(options: PreloadRewardedVideoAdOp
 
 export declare function showRewardedVideoAd(options?: ShowRewardedVideoAdOptions): Promise<any>;
 
-export declare function loadNativeAds(): Promise<any>;
+export declare function loadNativeAds(args: NativeOptions): Promise<any>;
