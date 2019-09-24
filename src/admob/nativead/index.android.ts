@@ -21,6 +21,7 @@ export class NativeAdViewLayout extends Common {
   adView: any;
   layout: any;
   nativeAd: any;  // Storing nativeAd here so we can destroy it later... on second thought might not do this as view gets recycled
+  private _file: string = ""; // used for grabing android layout.
 
   constructor() {
     super();
@@ -29,22 +30,23 @@ export class NativeAdViewLayout extends Common {
 
   createNativeView(): Object {
     // IMPORTANT: this UnifiedNativeAdView gets recycled in listviews... once the view leaves the page it will be reused again by another nativeAd
-    // const button = new android.widget.Button(this._context);
     console.log('creating native view!');
-    this.layout = android.view.LayoutInflater.from(this._context).inflate(getLayout('ad_unified'), null, false);
+
+    // Alternative way to let user choose what type of layout to nest the nativeAd in
+    // this.layout = android.view.LayoutInflater.from(this._context).inflate(getLayout('ad_container'), null, false);
+
+    // container to hold nativead since file parameter doesn't load in time to inflate layout here
+    this.layout = new android.widget.LinearLayout(this._context);
+    
     return this.layout;
   }
   initNativeView() {
     // TODO: Come up with better way to hide ad before it is loaded
-    this.registerView();
+    console.log('my file: ' + this._file);
+    // inflating UnifiedNativeAdView here instead of createNativeView to use file parameter user passes in for multiple templates
+    this.layout.addView(android.view.LayoutInflater.from(this._context).inflate(getLayout(this._file), this.layout, false));
 
-    // TODO: Loading and populating should be done outside of UI element
-    // loadNativeAds().then(result => {
-    //   // TODO: figure out what to do for loading multiple ads... curently just using first
-    //   this.populateView(result[0]);
-    // }).catch(error => {
-    //   console.log(error);
-    // })
+    this.registerView();
   }
 
   destroyNativeView() {
@@ -155,13 +157,13 @@ export class NativeAdViewLayout extends Common {
       console.log('Video status: Ad does not contain a video asset.');
     }
   }
-  
-  [fileProperty.setNative](value: string) {
-    this.nativeView.setText(value)
+
+  public set file({value='ad_unified'}: {value: string}) {
+    this._file = value;
   }
 
   [adProperty.setNative](value: any) {
-    this.populateView(value);
+    this.populateView(value); // TODO: look into if this could load before registerView as there would be issues
   }
 }
 

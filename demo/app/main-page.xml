@@ -30,7 +30,7 @@
             <ListView.itemTemplates >
               <template key="ad">
                 <StackLayout>
-                  <ui:NativeAdViewLayout ad="{{ $value }}" width="100%" />
+                  <ui:NativeAdViewLayout ad="{{ $value }}" file="ad_unified" width="100%" />
                 </StackLayout>
               </template>
               <template key="card">
