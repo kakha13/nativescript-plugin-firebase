@@ -203,6 +203,213 @@ firebase.admob.showRewardedVideoAd({
 )
 ```
 
+### loadNativeAds (Curently Android Only)
+This is used to load a nativeAd that you can load into the NativeAdViewLayout. You'll need to make sure to include a template for your ad in your `app_resoures/Android/src/main/res/layout`. This is where you can customize the look and feel of the ad. This can be used in a listView or any other layout. Make sure to test with google's test ad_unit_id `ca-app-pub-3940256099942544/2247696110`
+
+```js
+const settings = {
+  testing: true,  // change to false for production
+  ad_unit_id: "ca-app-pub-3940256099942544/2247696110", // add your own when ready for production... this is googles test ad_unit_id
+  totalAds: 5 // number can be 1 through 5
+}
+
+firebase.admob.loadNativeAds(settings).then(nativeAdsArray => {
+  console.log("NativeAds returned: " + result.length);
+  // Note even if you requested 5 ads you might not get 5 ads back
+  if (result.length <= 0) {
+    return
+  }
+  // store results to pass into NativeAdViewLayout
+}).catch(error => {
+  console.log(error);
+})
+```
+The results contain an array of UnifiedNativeAd objects that need to be passed into the NativeAdViewLayout in order to be displayed.
+
+In the example below, {{ items }} contains an array of UnifiedNativeAd objects and the apps normal content where {{ DoLoadNativeAds }} is a function that determines which template to use.
+```xml
+<Page xmlns:ui="nativescript-plugin-firebase/admob/nativead">
+<ListView items="{{ items }}" height="100%" loadMoreItems="{{ doLoadNativeAds }}" itemTemplateSelector="{{ doSelectItemTemplate }}">
+  <ListView.itemTemplates >
+    <template key="ad">
+      <StackLayout>
+        <ui:NativeAdViewLayout ad="{{ $value }}" width="100%" />
+      </StackLayout>
+    </template>
+    <template key="card">
+      <StackLayout>
+        <Label text="Your normal content would go here" />
+      </StackLayout>
+    </template>
+  </ListView.itemTemplates>
+</ListView>
+</Page>
+```
+The NativeAdViewLayout looks for a file in your `app_resoures/Android/src/main/res/layout` directory called `ad_unified.xml`. This is where you can modify the look and feel of your nativeAd.
+
+app_resoures/Android/src/main/res/layout/ad_unified.xml
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical">
+
+    <com.google.android.gms.ads.formats.UnifiedNativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="#FFFFFF"
+            android:minHeight="50dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/ad_attribution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:text="Ad"
+                android:background="#FFCC66"
+                android:width="15dp"
+                android:height="15dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/ad_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:adjustViewBounds="true"
+                        android:paddingBottom="5dp"
+                        android:paddingRight="5dp"
+                        android:paddingEnd="5dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/ad_headline"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#0000FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/ad_advertiser"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="bottom"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+
+                            <RatingBar
+                                android:id="@+id/ad_stars"
+                                style="?android:attr/ratingBarStyleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:isIndicator="true"
+                                android:numStars="5"
+                                android:stepSize="0.5" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/ad_body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:textSize="12sp" />
+
+                    <com.google.android.gms.ads.formats.MediaView
+                        android:id="@+id/ad_media"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="250dp"
+                        android:layout_height="175dp"
+                        android:layout_marginTop="5dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:orientation="horizontal"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp">
+
+                        <TextView
+                            android:id="@+id/ad_price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="5dp"
+                            android:paddingStart="5dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/ad_store"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="5dp"
+                            android:paddingStart="5dp"
+                            android:paddingRight="5dp"
+                            android:paddingEnd="5dp"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/ad_call_to_action"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+    </com.google.android.gms.ads.formats.UnifiedNativeAdView>
+</LinearLayout>
+```
+When editing ad_unified.xml it is important to not rename the adnroid ids as they are used to register and populate the unifiedNativeAdView with the correct values. Also not all ads will return all of the content. Required fields are headline, body, and call to action. If the content is not present the unifiedNativeAdView will not display it.
+#### Important Notes
+- You should always test with google's [test ads](https://developers.google.com/admob/android/test-ads?hl=en-US).
+- When using `loadNativeAds()` NativeAd objects that have been around longer than an hour and havn't been displayed should be discarded and replaced with new ads.
+- You are responsible for destroying the nativeAds that are returned from loadNativeAds... simply call `.destroy()` on the nativeAd you wish to get rid of. Failure to do so can result in memory leaks.
+- NativeAds best [practices](https://admob.google.com/home/resources/native-ads-playbook/)
+- Counting [impressions](https://support.google.com/admanager/answer/2521337?hl=en) happen when ad comes into screen veiw for mobile. 
+- Metric definitions for admob can be found [here](https://developers.google.com/admob/android/reporting#metrics)
 ## What about the nativescript-admob plugin?
 There's no functional difference between the AdMob features in the Firebase plugin and
 [nativescript-admob](https://github.com/EddyVerbruggen/nativescript-admob).
