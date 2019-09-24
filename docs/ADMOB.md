@@ -402,7 +402,7 @@ app_resoures/Android/src/main/res/layout/ad_unified.xml
     </com.google.android.gms.ads.formats.UnifiedNativeAdView>
 </LinearLayout>
 ```
-When editing ad_unified.xml it is important to not rename the adnroid ids as they are used to register and populate the unifiedNativeAdView with the correct values. Also not all ads will return all of the content. Required fields are headline, body, and call to action. If the content is not present the unifiedNativeAdView will not display it.
+When editing ad_unified.xml it is important to not rename the android ids as they are used to register and populate the unifiedNativeAdView with the correct values. Also not all ads will return all of the content. Required fields are headline, body, and call to action. If the content is not present the unifiedNativeAdView will not display it.
 #### Important Notes
 - You should always test with google's [test ads](https://developers.google.com/admob/android/test-ads?hl=en-US).
 - When using `loadNativeAds()` NativeAd objects that have been around longer than an hour and havn't been displayed should be discarded and replaced with new ads.
