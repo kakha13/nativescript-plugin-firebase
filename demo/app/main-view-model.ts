@@ -33,88 +33,7 @@ export class HelloWorldModel extends Observable {
   private firebaseTrace: FirebaseTrace;
 
   public items = [];
-  public newsItems = [
-    {
-      title: 'title1', 
-      body: 'body1'
-    },
-    {
-      title: 'title2',
-      body: 'body2'
-    },
-    {
-      title: 'title3', 
-      body: 'body3'
-    },
-    {
-      title: 'title4',
-      body: 'body4'
-    },
-    {
-      title: 'title5', 
-      body: 'body5'
-    },
-    {
-      title: 'title6',
-      body: 'body6'
-    },
-    {
-      title: 'title7', 
-      body: 'body7'
-    },
-    {
-      title: 'title8',
-      body: 'body8'
-    },
-    {
-      title: 'title9', 
-      body: 'body9'
-    },
-    {
-      title: 'title10',
-      body: 'body10'
-    },
-    {
-      title: 'title11', 
-      body: 'body11'
-    },
-    {
-      title: 'title12',
-      body: 'body12'
-    },
-    {
-      title: 'title13', 
-      body: 'body13'
-    },
-    {
-      title: 'title14',
-      body: 'body14'
-    },
-    {
-      title: 'title15', 
-      body: 'body15'
-    },
-    {
-      title: 'title16',
-      body: 'body16'
-    },
-    {
-      title: 'title17', 
-      body: 'body17'
-    },
-    {
-      title: 'title18',
-      body: 'body18'
-    },
-    {
-      title: 'title19', 
-      body: 'body19'
-    },
-    {
-      title: 'title20',
-      body: 'body20'
-    }
-  ];
+  public newsItems = [];
 
 
   navigatedTo(): void {
@@ -1959,6 +1878,14 @@ export class HelloWorldModel extends Observable {
 
   public doLoadNativeAds(): void {
     console.log('Loading Native Ad');
+    if (this.newsItems.length === 0){
+      for (let i = 0; i < 20; i++) {
+        this.newsItems.push({
+          title: 'title' + i, 
+          body: 'body' + i
+        });
+      }
+    }
     const settings = {
       testing: true,
       ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
