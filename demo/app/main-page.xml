@@ -3,45 +3,23 @@
 
     <TabViewItem title="Native Ads">
       <TabViewItem.view>
-          <StackLayout class="tab-content">
-            <!-- <Image margin="10" src="~/images/telerik-logo.png"/>
-            <Label text="Firebase plugin demo" class="title"/> -->
-            <!-- <Button text="Destory Native Ads" tap="{{ doDestroyNativeAds }}" class="button"/> -->
-            <Button text="load Native Ads" tap="{{ doLoadNativeAds }}" class="button"/>
-            <!-- <ui:NativeAd
-              id="ad_view"
-              width="100%"
-            >
-              <StackLayout borderColor="gray" borderWidth="2" padding="5">
-                <Label text="ad" id="ad_attribution" />
-                <Image id="ad_attribution_icon" stretch="none" />
-                <Image id="ad_icon" stretch="none" />
-                <Label ref="ad_headline" id="ad_headline" color="black"/>
-                <Label id="ad_advertiser" color="red"/>
-                <Label id="ad_body" color="blue"/>
-                <Label id="ad_price" />
-                <Label id="ad_store" />
-                <Button id="ad_call_to_action" color="white" />
-              </StackLayout>
-            </ui:NativeAd> -->
-            <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
-            <!-- <ui:NativeAdViewLayout width="100%" margin="20" /> -->
-            <ListView items="{{ items }}" height="100%" loadMoreItems="{{ doLoadNativeAds }}" itemTemplateSelector="{{ doSelectItemTemplate }}">
-            <ListView.itemTemplates >
-              <template key="ad">
-                <StackLayout>
-                  <ui:NativeAdViewLayout ad="{{ $value }}" file="ad_unified" width="100%" />
-                </StackLayout>
-              </template>
-              <template key="card">
-                <StackLayout>
-                  <Label text="{{ title }}" />
-                  <Label text="look at all of theese ads!" />
-                </StackLayout>
-              </template>
-            </ListView.itemTemplates>
-          </ListView>
-          </StackLayout>
+          <GridLayout rows="*">
+            <ListView row="0" items="{{ items }}" height="100%" loadMoreItems="{{ doLoadNativeAds }}" itemTemplateSelector="{{ doSelectItemTemplate }}">
+              <ListView.itemTemplates >
+                <template key="ad">
+                  <StackLayout>
+                    <ui:NativeAdViewLayout ad="{{ $value }}" file="ad_unified" width="100%" />
+                  </StackLayout>
+                </template>
+                <template key="card">
+                  <StackLayout>
+                    <Label text="{{ title }}" />
+                    <Label text="look at all of theese ads!" />
+                  </StackLayout>
+                </template>
+              </ListView.itemTemplates>
+            </ListView>
+          </GridLayout>
       </TabViewItem.view>
     </TabViewItem>
 

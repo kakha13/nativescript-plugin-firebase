@@ -17,6 +17,7 @@ import * as fs from "tns-core-modules/file-system";
 import { isAndroid, isIOS } from "tns-core-modules/platform";
 import { alert, prompt } from "tns-core-modules/ui/dialogs";
 import { MessagingViewModel } from "./messaging-view-model";
+import { ObservableArray } from "tns-core-modules/data/observable-array/observable-array";
 
 const firebaseWebApi = require("nativescript-plugin-firebase/app");
 
@@ -32,12 +33,15 @@ export class HelloWorldModel extends Observable {
   private onAuthStateChangedHandlerSet = false;
   private firebaseTrace: FirebaseTrace;
 
-  public items = [];
+  public items = new ObservableArray([]);
   public newsItems = [];
 
-
-  navigatedTo(): void {
-    console.log('It is working!');
+  /**
+   * Loading list with ads
+   */
+  constructor() {
+    super();
+    this.doLoadNativeAds();
   }
 
   /***********************************************
@@ -1879,26 +1883,25 @@ export class HelloWorldModel extends Observable {
   public doLoadNativeAds(): void {
     console.log('Loading Native Ad');
     if (this.newsItems.length === 0){
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 10; i++) {
         this.newsItems.push({
-          title: 'title' + i, 
-          body: 'body' + i
+          title: 'title: ' + i
         });
       }
     }
     const settings = {
       testing: true,
       ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-      totalAds: 5
+      totalAds: 2
     }
     firebase.admob.loadNativeAds(settings).then(result => {
       console.log(result.length);
       // exit if no results
       if (result.length <= 0) {
-        return
+        return;
       }
 
-      // inserting  5 potential ads into 10 news items
+      // inserting ads into 10 news items
       let offset = (this.newsItems.length / result.length) + 1;
       let index = 0;
 
@@ -1911,11 +1914,9 @@ export class HelloWorldModel extends Observable {
       });
 
       console.log(copyNewsItems);
-      // let tempArray: any;
-      // for (var i = 0; i < (result.length + this.newsItems.length); i++) {
 
-      // }
       if (this.items.length > 0) {
+        // NOTE: updating items sends blank objects into NativeAdViewLayout... TODO: fix this issue.
         this.set("items", this.items.concat(copyNewsItems));
       } else {
         // first time
@@ -1923,7 +1924,7 @@ export class HelloWorldModel extends Observable {
       }
     }).catch(error => {
       console.log(error);
-    })
+    });
   }
 
   public doSelectItemTemplate(item, index, items) {
