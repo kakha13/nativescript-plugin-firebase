@@ -1,4 +1,4 @@
-import { Common, fileProperty, adProperty } from './nativead-common';
+import { Common, adProperty } from './nativead-common';
 import * as application from 'tns-core-modules/application';
 
 declare const com: any;
@@ -36,13 +36,11 @@ export class NativeAdViewLayout extends Common {
     // this.layout = android.view.LayoutInflater.from(this._context).inflate(getLayout('ad_container'), null, false);
 
     // container to hold nativead since file parameter doesn't load in time to inflate layout here
-    this.layout = new android.widget.LinearLayout(this._context);
+    this.layout = new android.widget.FrameLayout(this._context);
     
     return this.layout;
   }
   initNativeView() {
-    // TODO: Come up with better way to hide ad before it is loaded
-    console.log('my file: ' + this._file);
     // inflating UnifiedNativeAdView here instead of createNativeView to use file parameter user passes in for multiple templates
     this.layout.addView(android.view.LayoutInflater.from(this._context).inflate(getLayout(this._file), this.layout, false));
 
@@ -80,7 +78,12 @@ export class NativeAdViewLayout extends Common {
     // Since this is the case registering the adview may need to be resset if different layouts were used
 
     // TODO: as of right now user can pass in any object through ad property... need to sanitize
-
+    if (Object.keys(nativeAd).length === 0 && nativeAd.constructor === Object){
+      // TODO: figure out why after loading new ads two empty objects get passed in
+      // this is happening when concating array of items... most likely that transistion causes empty objects to be passed.
+      console.log('empty object');
+      return;
+    }
 
     // TODO: remove for production... just demonstrating how listview is recycling this View
     if (this.nativeAd !== undefined) {
