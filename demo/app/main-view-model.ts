@@ -1892,7 +1892,11 @@ export class HelloWorldModel extends Observable {
     const settings = {
       testing: true,
       ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
-      totalAds: 2
+      totalAds: 2,
+      adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
+      mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT,
+      imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
+      requestMultipleImages: true
     }
     firebase.admob.loadNativeAds(settings).then(result => {
       console.log(result.length);

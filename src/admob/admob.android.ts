@@ -1,6 +1,6 @@
 import { firebase } from "../firebase-common";
 import { BannerOptions, InterstitialOptions, NativeOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions } from "./admob";
-import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks } from "./admob-common";
+import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks, ADCHOICES_PLACEMENT, MEDIA_ASPECT_RATIO, IMAGE_ORIENTATION } from "./admob-common";
 import * as appModule from "tns-core-modules/application";
 import { topmost } from "tns-core-modules/ui/frame";
 import { layout } from "tns-core-modules/utils/utils";
@@ -10,13 +10,14 @@ declare const com: any;
 // TODO: remove any unused reference
 const UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
 const NativeAd = com.google.android.gms.ads.formats.NativeAd;
+const NativeAdOptions = com.google.android.gms.ads.formats.NativeAdOptions;
 const MobileAds = com.google.android.gms.ads.MobileAds;
 const AdRequest = com.google.android.gms.ads.AdRequest;
 const AdLoader = com.google.android.gms.ads.AdLoader;
 const AdListener = com.google.android.gms.ads.AdListener;
 
 
-export { AD_SIZE };
+export { AD_SIZE, ADCHOICES_PLACEMENT, MEDIA_ASPECT_RATIO, IMAGE_ORIENTATION };
 
 export function showBanner(arg: BannerOptions): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -314,6 +315,13 @@ export function loadNativeAds(arg: NativeOptions): Promise<any> {
       this.reject = reject;
 
       const settings = arg;
+      const adChoicesPlacement = _getAdChoicesPlacement(settings.adChoicesPlacement);
+      const mediaAspectRatio = _getMediaAspectRatio(settings.mediaAspectRatio);
+      const imageOrientation = _getImageOrientation(settings.imageOrientation);
+      if (settings.requestMultipleImages === undefined) {
+        settings.requestMultipleImages = false; // default
+      }
+
       // TODO: will eventually need to come up with a solution for storing ads in different adunits
       // TODO: figure out if we want to store all ads or just leave that up to the user
       // Creating initial array for ads
@@ -348,9 +356,23 @@ export function loadNativeAds(arg: NativeOptions): Promise<any> {
       console.log('check3') // TODO: remove for production
 
       var builder = new AdLoader.Builder(activity, settings.ad_unit_id);
+
+      var nativeAdOptionsBuilder = new NativeAdOptions.Builder()
+        .setAdChoicesPlacement(adChoicesPlacement)
+        .setRequestMultipleImages(settings.requestMultipleImages)
+        .setImageOrientation(imageOrientation); // This method is deprecated. Use setMediaAspectRatio()
+        // NOTE if com.google.firebase:firebase-ads version lines up with com.gogle.android.gms.ads then at the time of writing this I have not
+        //      updated to 18.1.0 which is where setMediaAspectRatio was added.
+        //      firebase changelog https://firebase.google.com/support/release-notes/android
+        //      Mobile Ads SDK changelog https://developers.google.com/admob/android/rel-notes#17.2.0
+        // TODO update firebase-ads to 18.1.0 and see if setMediaAspectRatio works.
+        // .setMediaAspectRatio(mediaAspectRatio);  // currently not a function... only in version 18.1.0 and greater of com.gogle.android.gms.ads
+      console.log("imageOrientation: " + imageOrientation);
+      
       firebase.admob.adLoader = builder
         .forUnifiedNativeAd(new MyUnifiedNativeAd(this.resolve))
         .withAdListener(new NativeAdListener())
+        .withNativeAdOptions(nativeAdOptionsBuilder.build())
         .build();
 
       console.log('check4') // TODO: remove for production
@@ -369,6 +391,49 @@ export function loadNativeAds(arg: NativeOptions): Promise<any> {
       reject(ex);
     }
   });
+}
+
+function _getAdChoicesPlacement(placement): any {
+  if (placement === ADCHOICES_PLACEMENT.ADCHOICES_BOTTOM_LEFT){
+    return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_BOTTOM_LEFT;
+  } else if (placement === ADCHOICES_PLACEMENT.ADCHOICES_BOTTOM_RIGHT){
+    return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_BOTTOM_RIGHT;
+  } else if (placement === ADCHOICES_PLACEMENT.ADCHOICES_TOP_LEFT){
+    return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_TOP_LEFT;
+  } else if (placement === ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT){
+    return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_TOP_RIGHT;
+  } else {
+    return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_TOP_RIGHT;
+  }
+}
+// currently MediaAspectRatio doesn't work... com.google.firebase:firebase-ads >= 18.1.0 to work
+function _getMediaAspectRatio(ratio): any {
+  if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE;
+  } else if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT;
+  } else if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_SQUARE;
+  } else if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_UNKNOWN) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_UNKNOWN
+  } else if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_ANY) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_ANY;
+  } else {
+    return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_ANY;
+  }
+}
+
+// depreciated in favor of MediaAspectRatio as of com.google.firebase:firebase-ads 18.1.0
+function _getImageOrientation(orientation): any {
+  if (orientation === IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.ORIENTATION_LANDSCAPE;
+  } else if (orientation === IMAGE_ORIENTATION.ORIENTATION_PORTRAIT) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.ORIENTATION_PORTRAIT;
+  } else if (orientation === IMAGE_ORIENTATION.ORIENTATION_ANY) {
+    return com.google.android.gms.ads.formats.NativeAdOptions.ORIENTATION_ANY;
+  } else {
+    return com.google.android.gms.ads.formats.NativeAdOptions.ORIENTATION_ANY;
+  }
 }
 
 function _getBannerType(size): any {

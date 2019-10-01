@@ -23,6 +23,27 @@ export enum ERROR_CODES {
   ERROR_CODE_NO_FILL
 }
 
+export enum ADCHOICES_PLACEMENT {
+  ADCHOICES_TOP_LEFT,
+  ADCHOICES_TOP_RIGHT,
+  ADCHOICES_BOTTOM_RIGHT,
+  ADCHOICES_BOTTOM_LEFT
+}
+
+export enum MEDIA_ASPECT_RATIO {
+  NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE,
+  NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT,
+  NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
+  NATIVE_MEDIA_ASPECT_RATIO_UNKNOWN,
+  NATIVE_MEDIA_ASPECT_RATIO_ANY
+}
+
+export enum IMAGE_ORIENTATION {
+  ORIENTATION_ANY,
+  ORIENTATION_LANDSCAPE,
+  ORIENTATION_PORTRAIT
+}
+
 export interface BannerOptions {
   /**
    * The layout of the banner.
@@ -108,6 +129,27 @@ export interface InterstitialOptions {
 }
 
 export interface NativeOptions {
+  /**
+   * Default ADCHOICES_TOP_RIGHT
+   */
+  adChoicesPlacement?: ADCHOICES_PLACEMENT;
+
+  /**
+   * Default NATIVE_MEDIA_ASPECT_RATIO_ANY
+   */
+  mediaAspectRatio?: MEDIA_ASPECT_RATIO;
+
+  /**
+   * Default value any
+   */
+  imageOrientation?: IMAGE_ORIENTATION;
+
+  /**
+   * Default value false
+   */
+
+  requestMultipleImages?: boolean;
+
   /**
    * When false (default) you'll get real banners.
    */
