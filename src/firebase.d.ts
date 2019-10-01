@@ -824,6 +824,10 @@ export namespace firestore {
     endBefore(snapshot: DocumentSnapshot): Query;
   }
 
+  export interface CollectionGroup {
+    where(fieldPath: string, opStr: WhereFilterOp, value: any): Query;
+  }
+
   export interface CollectionReference extends Query {
     readonly id: string;
 
@@ -970,6 +974,8 @@ export namespace firestore {
 
   function collection(collectionPath: string): CollectionReference;
 
+  function collectionGroup(id: string): CollectionGroup;
+
   function doc(collectionPath: string, documentPath?: string): DocumentReference;
 
   function docRef(documentPath: string): DocumentReference;
@@ -987,12 +993,16 @@ export namespace firestore {
   function runTransaction(updateFunction: (transaction: firestore.Transaction) => Promise<any>): Promise<void>;
 
   function batch(): firestore.WriteBatch;
+
+  function clearPersistence(): Promise<void>;
 }
 
 export namespace functions {
+  export type SupportedRegions = "us-central1" | "us-east1" | "us-east4" | "europe-west1" | "europe-west2" | "asia-east2" | "asia-northeast1";
+
   export type HttpsCallable<I, O> = (callableData: I) => Promise<O>;
 
-  export function httpsCallable<I, O>(callableFunctionName: string): HttpsCallable<I, O>;
+  export function httpsCallable<I, O>(callableFunctionName: string, region?: SupportedRegions): HttpsCallable<I, O>;
 }
 
 // Auth

@@ -2,19 +2,18 @@ import * as application from "tns-core-modules/application";
 import * as utils from "tns-core-modules/utils/utils";
 import { MLKitCameraView as MLKitCameraViewBase } from "./mlkit-cameraview-common";
 
-declare const global: any;
+declare const android, global: any;
 const ActivityCompatClass = useAndroidX() ? global.androidx.core.app.ActivityCompat : android.support.v4.app.ActivityCompat;
 const CAMERA_PERMISSION_REQUEST_CODE = 502;
 
+interface SizeWH {
+  width: number;
+  height: number;
+}
+
 class SizePair {
-  pictureSize: {
-    width: number;
-    height: number;
-  };
-  previewSize: {
-    width: number;
-    height: number;
-  };
+  pictureSize: SizeWH;
+  previewSize: SizeWH;
 }
 
 function useAndroidX() {
@@ -29,12 +28,15 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
   public lastVisionImage;
   private detector: any;
   private camera;
+  private metadata;
 
   disposeNativeView(): void {
     super.disposeNativeView();
     this.surfaceView = null;
 
     if (this.camera != null) {
+      application.off("orientationChanged");
+
       this.camera.stopPreview();
       this.camera.setPreviewCallbackWithBuffer(null);
       try {
@@ -143,9 +145,6 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
         const pictureSize = sizePair.pictureSize;
         const previewSize = sizePair.previewSize;
 
-        console.log("sizePair.pictureSize: " + pictureSize.width + "x" + pictureSize.height);
-        console.log("sizePair.previewSize: " + previewSize.width + "x" + previewSize.height);
-
         const parameters = this.camera.getParameters();
 
         if (pictureSize) {
@@ -154,7 +153,17 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
         parameters.setPreviewSize(previewSize.width, previewSize.height);
         parameters.setPreviewFormat(android.graphics.ImageFormat.NV21);
 
+        application.off("orientationChanged");
+        application.on("orientationChanged", () => {
+          this.setRotation(this.camera, parameters, requestedCameraId);
+          setTimeout(() => {
+            this.fixStretch(previewSize);
+            this.setMetadata(previewSize);
+          }, 700);
+        });
+
         this.setRotation(this.camera, parameters, requestedCameraId);
+        this.fixStretch(previewSize);
 
         if (parameters.getSupportedFocusModes().contains(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
           parameters.setFocusMode(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
@@ -172,13 +181,7 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
         const onSuccessListener = this.createSuccessListener();
         const onFailureListener = this.createFailureListener();
 
-        let metadata =
-            new com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata.Builder()
-                .setFormat(com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
-                .setWidth(previewSize.width)
-                .setHeight(previewSize.height)
-                .setRotation(this.rotation)
-                .build();
+        this.setMetadata(previewSize);
 
         let throttle = 0;
         this.camera.setPreviewCallbackWithBuffer(new android.hardware.Camera.PreviewCallback({
@@ -194,6 +197,7 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
               return;
             }
 
+            byteArray = this.preProcessImage(byteArray);
             this.pendingFrameData = this.bytesToByteBuffer.get(byteArray);
 
             if (throttle++ % this.processEveryNthFrame !== 0) {
@@ -201,16 +205,15 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
             }
 
             let data = this.pendingFrameData;
-            // pendingFrameData = null;
 
             if (this.detector.processImage) {
-              this.lastVisionImage = com.google.firebase.ml.vision.common.FirebaseVisionImage.fromByteBuffer(data, metadata);
+              this.lastVisionImage = com.google.firebase.ml.vision.common.FirebaseVisionImage.fromByteBuffer(data, this.metadata);
               this.detector
                   .processImage(this.lastVisionImage)
                   .addOnSuccessListener(onSuccessListener)
                   .addOnFailureListener(onFailureListener);
             } else if (this.detector.detectInImage) {
-              this.lastVisionImage = com.google.firebase.ml.vision.common.FirebaseVisionImage.fromByteBuffer(data, metadata);
+              this.lastVisionImage = com.google.firebase.ml.vision.common.FirebaseVisionImage.fromByteBuffer(data, this.metadata);
               this.detector
                   .detectInImage(this.lastVisionImage)
                   .addOnSuccessListener(onSuccessListener)
@@ -238,6 +241,46 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
     }, 500);
   }
 
+  private setMetadata(previewSize: SizeWH): void {
+    this.metadata =
+        new com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata.Builder()
+            .setFormat(com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
+            .setWidth(previewSize.width)
+            .setHeight(previewSize.height)
+            .setRotation(this.rotation)
+            .build();
+  }
+
+  private fixStretch(previewSize: SizeWH): void {
+    let measuredWidth = this.surfaceView.getMeasuredWidth();
+    let measuredHeight = this.surfaceView.getMeasuredHeight();
+
+    let scale = previewSize.width / previewSize.height;
+    let invertedScale = previewSize.height / previewSize.width;
+    let measuredScale = measuredWidth / measuredHeight;
+
+    let scaleX = 1, scaleY = 1;
+    if (this.rotation == 1 || this.rotation == 3) {
+      if (measuredScale <= scale) {
+        scaleY = (measuredWidth * scale) / measuredHeight;
+      } else {
+        scaleX = (measuredHeight * scale) / measuredWidth;
+      }
+    } else {
+      if (measuredScale >= invertedScale) {
+        scaleY = (measuredWidth * invertedScale) / measuredHeight;
+      } else {
+        scaleX = (measuredHeight * invertedScale) / measuredWidth;
+      }
+    }
+
+    // make sure the new size covers the entire viewport requested
+    const correction = scaleX / scaleY > 1 ? scaleX / scaleY : 1;
+
+    this.surfaceView.setScaleX(scaleX * correction);
+    this.surfaceView.setScaleY(scaleY * correction);
+  }
+
   protected updateTorch(): void {
     if (this.camera) {
       const parameters = this.camera.getParameters();
@@ -250,7 +293,7 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
     if (this.camera != null) {
       this.camera.stopPreview();
     }
-  };
+  }
 
   protected resumeScanning(): void {
     this.runCamera();
@@ -384,5 +427,4 @@ export abstract class MLKitCameraView extends MLKitCameraViewBase {
     camera.setDisplayOrientation(displayAngle);
     parameters.setRotation(angle);
   }
-
 }

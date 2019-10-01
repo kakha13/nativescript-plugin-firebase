@@ -162,7 +162,7 @@ export function addBackgroundRemoteNotificationHandler(appDelegate) {
       FIRMessaging.messaging().APNSToken = deviceToken;
     } else {
       // if Firebase Messaging isn't used, the developer cares about the APNs token, so pass it to the app
-      const token = deviceToken.description.replace(/[< >]/g, "");
+      const token = deviceToken.debugDescription.replace(/[< >]/g, "");
       _pushToken = token;
       if (_receivedPushTokenCallback) {
         _receivedPushTokenCallback(token);
@@ -538,13 +538,12 @@ class UNUserNotificationCenterDelegateImpl extends NSObject implements UNUserNot
         userInfoJSON["showWhenInForeground"] === true || // ...this is for non-FCM...
         (userInfoJSON.aps && userInfoJSON.aps.showWhenInForeground === true) // ...and this as well (so users can choose where to put it).
     ) {
-      // don't invoke the callback here, since the app shouldn't fi. navigate to a new page unless the user pressed the notification
       completionHandler(UNNotificationPresentationOptions.Alert | UNNotificationPresentationOptions.Sound | UNNotificationPresentationOptions.Badge);
     } else {
-      // invoke the callback here, since in this case 'userNotificationCenterDidReceiveNotificationResponseWithCompletionHandler' doesn't run
-      this.callback(notification);
       completionHandler(0);
     }
+
+    this.callback(notification);
   }
 
   public userNotificationCenterDidReceiveNotificationResponseWithCompletionHandler(center: UNUserNotificationCenter, response: UNNotificationResponse, completionHandler: () => void): void {
