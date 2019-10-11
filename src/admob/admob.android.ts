@@ -7,14 +7,9 @@ import { layout } from "tns-core-modules/utils/utils";
 
 declare const com: any;
 
-// TODO: remove any unused reference
 const UnifiedNativeAd = com.google.android.gms.ads.formats.UnifiedNativeAd;
-const NativeAd = com.google.android.gms.ads.formats.NativeAd;
 const NativeAdOptions = com.google.android.gms.ads.formats.NativeAdOptions;
-const MobileAds = com.google.android.gms.ads.MobileAds;
-const AdRequest = com.google.android.gms.ads.AdRequest;
 const AdLoader = com.google.android.gms.ads.AdLoader;
-const AdListener = com.google.android.gms.ads.AdListener;
 
 
 export { AD_SIZE, ADCHOICES_PLACEMENT, MEDIA_ASPECT_RATIO, IMAGE_ORIENTATION };
@@ -307,75 +302,37 @@ export function hideBanner(): Promise<any> {
 export function loadNativeAds(arg: NativeOptions): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
-      // args need to contain
-      // ad_unit_id, number of ads up to 5
-      console.log('Check1')  // TODO: remove for production
-
       this.resolve = resolve;
       this.reject = reject;
-
-      const settings = arg;
-      const adChoicesPlacement = _getAdChoicesPlacement(settings.adChoicesPlacement);
-      const mediaAspectRatio = _getMediaAspectRatio(settings.mediaAspectRatio);
-      const imageOrientation = _getImageOrientation(settings.imageOrientation);
-      if (settings.requestMultipleImages === undefined) {
-        settings.requestMultipleImages = false; // default
-      }
-
-      // TODO: will eventually need to come up with a solution for storing ads in different adunits
-      // TODO: figure out if we want to store all ads or just leave that up to the user
-      // Creating initial array for ads
-      // if (firebase.admob.nativeAds === undefined) {
-      firebase.admob.nativeAds = [];  // letting user handle destroying nativeAds
-      // }
-      // TODO: should sanitize/check if all referenced values are passed in... referencing something not defined will through errors
+      const settings = arg; // args need to contain ad_unit_id, number of ads up to 5
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
 
-      console.log('check2');  // TODO: remove for production
+      firebase.admob.nativeAds = [];  // letting user handle destroying nativeAds
 
       const NativeAdListener = com.google.android.gms.ads.AdListener.extend({
         onAdFailedToLoad: errorCode => {
           console.log('ad Failed to load: ' + errorCode);
           if (!firebase.admob.adLoader.isLoading()) {
-            console.log('total ads loaded: ' + firebase.admob.nativeAds.length);  // NOTE: if loadNativeAds is called this will return total of all ads loaded unless destroyed.
+            console.log('total ads loaded: ' + firebase.admob.nativeAds.length);
             if(firebase.admob.nativeAds.length > 0) {
               this.resolve(firebase.admob.nativeAds)
             } else {
               this.reject('failed to load ad(s)');
             }
-            // reject for single ad goes in here
-            // if multiple ads check should be done if at least one ad was successful
           }
         },
         onAdClicked: args => {
-          // NOTE: not sure if this will actually work as I needed a different listener for loaded UnifiedNativeAds
           console.log("Click event Logged!!!");
         }
       });
 
-      console.log('check3') // TODO: remove for production
-
       var builder = new AdLoader.Builder(activity, settings.ad_unit_id);
 
-      var nativeAdOptionsBuilder = new NativeAdOptions.Builder()
-        .setAdChoicesPlacement(adChoicesPlacement)
-        .setRequestMultipleImages(settings.requestMultipleImages)
-        .setImageOrientation(imageOrientation); // This method is deprecated. Use setMediaAspectRatio()
-        // NOTE if com.google.firebase:firebase-ads version lines up with com.gogle.android.gms.ads then at the time of writing this I have not
-        //      updated to 18.1.0 which is where setMediaAspectRatio was added.
-        //      firebase changelog https://firebase.google.com/support/release-notes/android
-        //      Mobile Ads SDK changelog https://developers.google.com/admob/android/rel-notes#17.2.0
-        // TODO update firebase-ads to 18.1.0 and see if setMediaAspectRatio works.
-        // .setMediaAspectRatio(mediaAspectRatio);  // currently not a function... only in version 18.1.0 and greater of com.gogle.android.gms.ads
-      console.log("imageOrientation: " + imageOrientation);
-      
       firebase.admob.adLoader = builder
         .forUnifiedNativeAd(new MyUnifiedNativeAd(this.resolve))
         .withAdListener(new NativeAdListener())
-        .withNativeAdOptions(nativeAdOptionsBuilder.build())
+        .withNativeAdOptions(_buildNativeAdOptions(settings))
         .build();
-
-      console.log('check4') // TODO: remove for production
       
       // Load the Native ads.
       // NOTE: might just be able to use loadAds even for one ad... documentation talked about both ways... leaving as example
@@ -406,7 +363,7 @@ function _getAdChoicesPlacement(placement): any {
     return com.google.android.gms.ads.formats.NativeAdOptions.ADCHOICES_TOP_RIGHT;
   }
 }
-// currently MediaAspectRatio doesn't work... com.google.firebase:firebase-ads >= 18.1.0 to work
+
 function _getMediaAspectRatio(ratio): any {
   if (ratio === MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE) {
     return com.google.android.gms.ads.formats.NativeAdOptions.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE;
@@ -423,6 +380,7 @@ function _getMediaAspectRatio(ratio): any {
   }
 }
 
+// TODO: remove
 // depreciated in favor of MediaAspectRatio as of com.google.firebase:firebase-ads 18.1.0
 function _getImageOrientation(orientation): any {
   if (orientation === IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE) {
@@ -434,6 +392,26 @@ function _getImageOrientation(orientation): any {
   } else {
     return com.google.android.gms.ads.formats.NativeAdOptions.ORIENTATION_ANY;
   }
+}
+
+function _buildVideoOptions(settings): any {
+  // setClickToExpandRequested did nothing with test ads...
+  const videoOptionsBuilder = new com.google.android.gms.ads.VideoOptions.Builder()
+    .setStartMuted(settings.startMuted)
+    .setCustomControlsRequested(settings.customControlsRequested)
+    .setClickToExpandRequested(false);
+  return videoOptionsBuilder.build();
+}
+
+function _buildNativeAdOptions(settings): any {
+  // setImageOrientation is deprecated. Use setMediaAspectRatio() as of version 18.1.0
+  const nativeAdOptionsBuilder = new NativeAdOptions.Builder()
+        .setAdChoicesPlacement(_getAdChoicesPlacement(settings.adChoicesPlacement))
+        .setRequestMultipleImages(settings.requestMultipleImages)
+        .setVideoOptions(_buildVideoOptions(settings))
+        .setMediaAspectRatio(_getMediaAspectRatio(settings.mediaAspectRatio))
+        .setRequestCustomMuteThisAd(false);
+  return nativeAdOptionsBuilder.build();
 }
 
 function _getBannerType(size): any {
@@ -521,7 +499,6 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
     return global.__native(this);
   }
   onUnifiedNativeAdLoaded(ad) {
-    console.log(ad);
     firebase.admob.nativeAds.push(ad); // could potentialy pop
     if (!firebase.admob.adLoader.isLoading()) {
       this.LoadNativeAdsResolve(firebase.admob.nativeAds);  // resolving promise for loadNativeAds()

@@ -1927,22 +1927,41 @@ export class HelloWorldModel extends Observable {
         });
       }
     }
+    /**
+     * Test ad units
+     * Video ads /6499/example/native-video
+     * Native Advanced ca-app-pub-3940256099942544/2247696110
+     * Native Advanced Video ca-app-pub-3940256099942544/1044960115
+     */
     const settings = {
       testing: true,
-      ad_unit_id: "ca-app-pub-3940256099942544/2247696110",
+      ad_unit_id: "/6499/example/native-video",
       totalAds: 2,
       adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
-      mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_PORTRAIT,
-      imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
-      requestMultipleImages: true
+      mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
+      // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
+      requestMultipleImages: true,
+      startMuted: false, // videoOptions
+      customControlsRequested: false // videoOptions
     }
     firebase.admob.loadNativeAds(settings).then(result => {
       console.log(result.length);
       // exit if no results
       if (result.length <= 0) {
+        if(this.items.length === 0) {
+          // Show reload button for failed first attempt
+
+        }
         return;
       }
+    var vc = result[0].getVideoController();
 
+    if (vc.hasVideoContent()) {
+      console.log('Video status: has video content');
+      console.log("Video status: Ad contains a " + vc.getAspectRatio() + ":1 video asset.");
+    } else {
+      console.log('Video status: Ad does not contain a video asset.');
+    }
       // inserting ads into 10 news items
       let offset = (this.newsItems.length / result.length) + 1;
       let index = 0;

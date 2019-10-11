@@ -16,7 +16,6 @@ function getId(id: string) {
 
 // Uses file in res/layout to display ad
 export class NativeAdViewLayout extends Common {
-  // nativeView: android.widget.Button;  // added for TypeScript intellisense.
   // nativeView: com.google.android.gms.ads.formats.UnifiedNativeAdView; // added or TypeScript intellisense
   adView: any;
   layout: any;
@@ -48,7 +47,9 @@ export class NativeAdViewLayout extends Common {
   }
 
   destroyNativeView() {
-    this.adView.destroy();  // Not sure if Nativescript's destroy is good enough or if I need to specificly use the UnifiedNativeAdView destroy method here...
+    // NOTE that this isn't the same as destroying the unifiedNativeAd itself
+    // Not sure if Nativescript's destroy is good enough or if I need to specificly destroy the adview myself
+    this.adView.destroy();
   }
 
   registerView() {
@@ -155,7 +156,14 @@ export class NativeAdViewLayout extends Common {
     var vc = nativeAd.getVideoController();
 
     if (vc.hasVideoContent()) {
+      // TODO: remove these logs for production
       console.log('Video status: has video content');
+      console.log("Video status: Ad contains a " + vc.getAspectRatio() + ":1 video asset.");
+      if(vc.isCustomControlsEnabled()) {
+        console.log('Video status: custom controls enabled');
+      } else {
+        console.log('Video status: custom controls disabled');
+      }
     } else {
       console.log('Video status: Ad does not contain a video asset.');
     }
