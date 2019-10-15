@@ -36,6 +36,18 @@ export const MEDIA_ASPECT_RATIO = {
   NATIVE_MEDIA_ASPECT_RATIO_ANY: "ANY"
 }
 
+export const NATIVEADS_DEFAULTS = {
+  testing: false,
+  totalAds: 1,
+  adChoicesPlacement: ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
+  mediaAspectRatio: MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_LANDSCAPE,
+  // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
+  requestMultipleImages: false,
+  startMuted: false, // videoOptions
+  customControlsRequested: false, // videoOptions
+  clickToExpandRequested: false // videoOptions
+}
+
 export const IMAGE_ORIENTATION = {
   ORIENTATION_ANY: "ANY",
   ORIENTATION_LANDSCAPE: "LANDSCAPE",

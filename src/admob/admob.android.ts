@@ -1,6 +1,6 @@
 import { firebase } from "../firebase-common";
 import { BannerOptions, InterstitialOptions, NativeOptions, PreloadRewardedVideoAdOptions, ShowRewardedVideoAdOptions } from "./admob";
-import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks, ADCHOICES_PLACEMENT, MEDIA_ASPECT_RATIO, IMAGE_ORIENTATION } from "./admob-common";
+import { AD_SIZE, BANNER_DEFAULTS, rewardedVideoCallbacks, ADCHOICES_PLACEMENT, MEDIA_ASPECT_RATIO, IMAGE_ORIENTATION, NATIVEADS_DEFAULTS } from "./admob-common";
 import * as appModule from "tns-core-modules/application";
 import { topmost } from "tns-core-modules/ui/frame";
 import { layout } from "tns-core-modules/utils/utils";
@@ -304,7 +304,7 @@ export function loadNativeAds(arg: NativeOptions): Promise<any> {
     try {
       this.resolve = resolve;
       this.reject = reject;
-      const settings = arg; // args need to contain ad_unit_id, number of ads up to 5
+      const settings = firebase.merge(arg, NATIVEADS_DEFAULTS);
       const activity = appModule.android.foregroundActivity || appModule.android.startActivity;
 
       firebase.admob.nativeAds = [];  // letting user handle destroying nativeAds
@@ -399,7 +399,7 @@ function _buildVideoOptions(settings): any {
   const videoOptionsBuilder = new com.google.android.gms.ads.VideoOptions.Builder()
     .setStartMuted(settings.startMuted)
     .setCustomControlsRequested(settings.customControlsRequested)
-    .setClickToExpandRequested(false);
+    .setClickToExpandRequested(settings.clickToExpandRequested);
   return videoOptionsBuilder.build();
 }
 
@@ -499,7 +499,7 @@ class MyUnifiedNativeAd extends UnifiedNativeAd {
     return global.__native(this);
   }
   onUnifiedNativeAdLoaded(ad) {
-    firebase.admob.nativeAds.push(ad); // could potentialy pop
+    firebase.admob.nativeAds.push(ad);
     if (!firebase.admob.adLoader.isLoading()) {
       this.LoadNativeAdsResolve(firebase.admob.nativeAds);  // resolving promise for loadNativeAds()
     }

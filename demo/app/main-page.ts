@@ -41,8 +41,20 @@ export function pageLoaded(args: observable.EventData) {
 }
 
 export function loadNativeAds(): void {
+  const settings = {
+    testing: true,
+    ad_unit_id: "ca-app-pub-3940256099942544/1044960115",
+    totalAds: 2,
+    adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
+    mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
+    // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
+    requestMultipleImages: true,
+    startMuted: false, // videoOptions
+    customControlsRequested: false, // videoOptions
+    clickToExpandRequested: false
+  }
   console.log('Loading Native Ad');
-  firebase.admob.loadNativeAds().then(result => {
+  firebase.admob.loadNativeAds(settings).then(result => {
     // only guaranteed assets
     // headline, body, callToAction
     console.log('Total number of ads returned: ' + result.length);
@@ -67,6 +79,7 @@ export function loadNativeAds(): void {
   })
 }
 
+// TODO remove or add in a storage option for ads
 function destroyNativeAds(): void {
   console.log(firebase.admob.nativeAds);
   if(firebase.admob.nativeAds !== undefined && firebase.admob.loadNativeAds.length > 0) {

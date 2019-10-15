@@ -168,7 +168,22 @@ export interface NativeOptions {
   /**
    * number from 1-5
    */
-  totalAds: number;
+  totalAds?: number;
+
+  /**
+   * default false
+   */
+  startMuted?: boolean;
+
+  /**
+   * default false
+   */
+  customControlsRequested?: boolean;
+
+  /**
+   * default false
+   */
+  clickToExpandRequested?: boolean;
 
   /**
    * Something like "ca-app-pub-XXXXXX/YYYYYY".
@@ -263,3 +278,5 @@ export declare function preloadRewardedVideoAd(options: PreloadRewardedVideoAdOp
 export declare function showRewardedVideoAd(options?: ShowRewardedVideoAdOptions): Promise<any>;
 
 export declare function loadNativeAds(args: NativeOptions): Promise<any>;
+
+export declare var nativeAds: any;

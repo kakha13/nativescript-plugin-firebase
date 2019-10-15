@@ -1935,14 +1935,15 @@ export class HelloWorldModel extends Observable {
      */
     const settings = {
       testing: true,
-      ad_unit_id: "/6499/example/native-video",
-      totalAds: 2,
+      ad_unit_id: "ca-app-pub-3940256099942544/1044960115",
+      totalAds: 5,
       adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
       mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
       // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
-      requestMultipleImages: true,
+      requestMultipleImages: false,
       startMuted: false, // videoOptions
-      customControlsRequested: false // videoOptions
+      customControlsRequested: false, // videoOptions
+      clickToExpandRequested: false
     }
     firebase.admob.loadNativeAds(settings).then(result => {
       console.log(result.length);
@@ -1992,6 +1993,7 @@ export class HelloWorldModel extends Observable {
     return item.title !== undefined ? "card" : "ad";
   }
 
+  // TODO remove or add in a storage option for ads
   public doDestroyNativeAds(): void {
     console.log(firebase.admob.nativeAds);
     if(firebase.admob.nativeAds !== undefined && firebase.admob.loadNativeAds.length > 0) {
