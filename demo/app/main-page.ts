@@ -41,51 +41,51 @@ export function pageLoaded(args: observable.EventData) {
 }
 
 export function loadNativeAds(): void {
-  const settings = {
-    testing: true,
-    ad_unit_id: "ca-app-pub-3940256099942544/1044960115",
-    totalAds: 2,
-    adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
-    mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
-    // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
-    requestMultipleImages: true,
-    startMuted: false, // videoOptions
-    customControlsRequested: false, // videoOptions
-    clickToExpandRequested: false
-  }
-  console.log('Loading Native Ad');
-  firebase.admob.loadNativeAds(settings).then(result => {
-    // only guaranteed assets
-    // headline, body, callToAction
-    console.log('Total number of ads returned: ' + result.length);
-    console.log(result[0].getImages().size());
-    // page.getViewById("ad_headline").text = result[0].getHeadline();
-    // page.getViewById("ad_advertiser").text = result[0].getAdvertiser();
-    // // page.getViewById("ad_attribution").text = result[0].getAdChoicesInfo().getText().toString();
-    // page.getViewById("ad_attribution_icon").src = result[0].getAdChoicesInfo().getImages().get(0).getUri().toString();
-    // page.getViewById("ad_body").text = result[0].getBody();
-    // page.getViewById("ad_icon").src = result[0].getIcon().getUri().toString();
-    // page.getViewById("ad_price").text = result[0].getPrice();
-    // page.getViewById("ad_store").text = result[0].getStore();
-    // page.getViewById("ad_call_to_action").text = result[0].getCallToAction();
-    console.log(result[0].getIcon().getUri());
+  // const settings = {
+  //   testing: true,
+  //   ad_unit_id: "ca-app-pub-3940256099942544/1044960115",
+  //   totalAds: 2,
+  //   adChoicesPlacement: firebase.admob.ADCHOICES_PLACEMENT.ADCHOICES_TOP_RIGHT,
+  //   mediaAspectRatio: firebase.admob.MEDIA_ASPECT_RATIO.NATIVE_MEDIA_ASPECT_RATIO_SQUARE,
+  //   // imageOrientation: firebase.admob.IMAGE_ORIENTATION.ORIENTATION_LANDSCAPE,  // depreciated in favor of mediaAspectRatio
+  //   requestMultipleImages: true,
+  //   startMuted: false, // videoOptions
+  //   customControlsRequested: false, // videoOptions
+  //   clickToExpandRequested: false
+  // }
+  // console.log('Loading Native Ad');
+  // firebase.admob.loadNativeAds(settings).then(result => {
+  //   // only guaranteed assets
+  //   // headline, body, callToAction
+  //   console.log('Total number of ads returned: ' + result.length);
+  //   console.log(result[0].getImages().size());
+  //   // page.getViewById("ad_headline").text = result[0].getHeadline();
+  //   // page.getViewById("ad_advertiser").text = result[0].getAdvertiser();
+  //   // // page.getViewById("ad_attribution").text = result[0].getAdChoicesInfo().getText().toString();
+  //   // page.getViewById("ad_attribution_icon").src = result[0].getAdChoicesInfo().getImages().get(0).getUri().toString();
+  //   // page.getViewById("ad_body").text = result[0].getBody();
+  //   // page.getViewById("ad_icon").src = result[0].getIcon().getUri().toString();
+  //   // page.getViewById("ad_price").text = result[0].getPrice();
+  //   // page.getViewById("ad_store").text = result[0].getStore();
+  //   // page.getViewById("ad_call_to_action").text = result[0].getCallToAction();
+  //   console.log(result[0].getIcon().getUri());
 
-    for (var i = 0; i < result.length; i++) {
-      console.log(i);
-      console.log(result[i].getHeadline());
-    }
-  }).catch(error => {
-    console.log(error);
-  })
+  //   for (var i = 0; i < result.length; i++) {
+  //     console.log(i);
+  //     console.log(result[i].getHeadline());
+  //   }
+  // }).catch(error => {
+  //   console.log(error);
+  // })
 }
 
 // TODO remove or add in a storage option for ads
 function destroyNativeAds(): void {
-  console.log(firebase.admob.nativeAds);
-  if(firebase.admob.nativeAds !== undefined && firebase.admob.loadNativeAds.length > 0) {
-    for (let i = 0; i < firebase.admob.nativeAds.length; i++) {
-      firebase.admob.nativeAds[i].destroy();
-    }
-    firebase.admob.nativeAds = [];
-  }
+  // console.log(firebase.admob.nativeAds);
+  // if(firebase.admob.nativeAds !== undefined && firebase.admob.loadNativeAds.length > 0) {
+  //   for (let i = 0; i < firebase.admob.nativeAds.length; i++) {
+  //     firebase.admob.nativeAds[i].destroy();
+  //   }
+  //   firebase.admob.nativeAds = [];
+  // }
 }

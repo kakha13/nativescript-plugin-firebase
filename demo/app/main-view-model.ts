@@ -1919,6 +1919,9 @@ export class HelloWorldModel extends Observable {
   }
 
   public doLoadNativeAds(): void {
+    if(isIOS) {
+      return;
+    }
     console.log('Loading Native Ad');
     if (this.newsItems.length === 0){
       for (let i = 0; i < 10; i++) {
